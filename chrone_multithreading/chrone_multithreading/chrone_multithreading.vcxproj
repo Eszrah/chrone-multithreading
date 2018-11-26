@@ -121,27 +121,26 @@
   <ItemGroup>
     <ClInclude Include="include\container\LockFreeLinkedList.h" />
     <ClInclude Include="include\NativeType.h" />
-    <ClInclude Include="include\scheduler\fiber\Fiber.h" />
-    <ClInclude Include="include\scheduler\fiber\FiberFuncData.h" />
-    <ClInclude Include="include\scheduler\fiber\FiberEntryPoint.h" />
-    <ClInclude Include="include\scheduler\fiber\FiberPool.h" />
-    <ClInclude Include="include\scheduler\fiber\FiberTaskScheduler.h" />
-    <ClInclude Include="include\scheduler\fiber\FiberTaskSchedulerAgent.h" />
-    <ClInclude Include="include\scheduler\fiber\FiberTaskSchedulerProxy.h" />
-    <ClInclude Include="include\scheduler\fiber\Task.h" />
-    <ClInclude Include="include\scheduler\fiber\TaskDecl.h" />
-    <ClInclude Include="include\scheduler\fiber\TaskSyncPrimitive.h" />
-    <ClInclude Include="include\scheduler\fiber\TaskSyncPrimitiveData.h" />
-    <ClInclude Include="include\scheduler\fiber\WindowsFiberHelper.h" />
+    <ClInclude Include="include\scheduler\FiberData.h" />
+    <ClInclude Include="include\scheduler\FiberPoolFunction.h" />
+    <ClInclude Include="include\scheduler\FiberTaskSchedulerFunction.h" />
+    <ClInclude Include="include\scheduler\ThreadFiberData.h" />
+    <ClInclude Include="include\scheduler\Fiber.h" />
+    <ClInclude Include="include\scheduler\FiberPool.h" />
+    <ClInclude Include="include\scheduler\FiberTaskSchedulerData.h" />
+    <ClInclude Include="include\scheduler\TaskDecl.h" />
+    <ClInclude Include="include\scheduler\WindowsFiberHelper.h" />
+    <ClInclude Include="include\scheduler\WorkerFiberEntryPoint.h" />
+    <ClInclude Include="include\scheduler\WorkerThreadEntryPoint.h" />
     <ClInclude Include="include\Spinlock.h" />
     <ClInclude Include="include\std_extension\SpinlockStdExt.h" />
+    <ClInclude Include="src\scheduler\FiberPoolFunction.cpp" />
+    <ClInclude Include="src\scheduler\FiberTaskSchedulerFunction.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\scheduler\fiber\FiberEntryPoint.cpp" />
-    <ClCompile Include="src\scheduler\fiber\FiberTaskScheduler.cpp" />
-    <ClCompile Include="src\scheduler\fiber\FiberTaskSchedulerAgent.cpp" />
-    <ClCompile Include="src\scheduler\fiber\FiberTaskSchedulerProxy.cpp" />
-    <ClCompile Include="src\scheduler\fiber\WindowsFiberHelper.cpp" />
+    <ClCompile Include="src\scheduler\WindowsFiberHelper.cpp" />
+    <ClCompile Include="src\scheduler\WorkerFiberEntryPoint.cpp" />
+    <ClCompile Include="src\scheduler\WorkerThreadEntryPoint.cpp" />
     <ClCompile Include="src\Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

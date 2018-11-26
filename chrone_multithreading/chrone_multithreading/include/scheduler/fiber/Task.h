@@ -25,8 +25,14 @@ struct Task
 	Task&	operator=(const Task&) = delete;
 	Task&	operator=(Task&& other) = default;
 
+	TaskDecl	decl{};
+	std::atomic<Fiber*>*	dependencyFiber{ nullptr };
+	std::atomic<int>*	dependencyCoouter{ nullptr };
+};
+
+/*
 	inline bool Execute()
-	{	
+	{
 		decl.functor( decl.data );
 
 		if (dependencyCoouter)
@@ -59,10 +65,6 @@ struct Task
 		return dependencyFiber->load(
 			std::memory_order_relaxed);
 	}
-
-	TaskDecl	decl{};
-	std::atomic<Fiber*>*	dependencyFiber{ nullptr };
-	std::atomic<int>*	dependencyCoouter{ nullptr };
-};
+*/
 
 }

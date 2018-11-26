@@ -1,27 +1,27 @@
-#include "scheduler/fiber/FiberTaskScheduler.h"
+//#include "scheduler/fiber/FiberTaskScheduler.h"
 
 #include <iostream>
 #include <chrono>
 #include <thread>
-
-using namespace chrone::multithreading::scheduler;
-
-constexpr unsigned int counter{500};
-
-struct Data
-{
-	int input0{};
-	int input1{};
-	int	result{};
-};
-
-struct Context
-{
-	FiberTaskSchedulerAgent*	agent{ nullptr };
-
-	unsigned int offset{ 500 };
-	void*	data{ nullptr };
-};
+//
+//using namespace chrone::multithreading::scheduler;
+//
+//constexpr unsigned int counter{500};
+//
+//struct Data
+//{
+//	int input0{};
+//	int input1{};
+//	int	result{};
+//};
+//
+//struct Context
+//{
+//	FiberTaskSchedulerAgent*	agent{ nullptr };
+//
+//	unsigned int offset{ 500 };
+//	void*	data{ nullptr };
+//};
 
 //void ProcessSumFunction(void* data)
 //{
@@ -52,30 +52,30 @@ struct Context
 //
 //}
 
-void ProcessVoidFunction(void* data)
-{
-	Context*	context = static_cast<Context*>(data);
-	FiberTaskSchedulerAgent*	agent = context->agent;
-	Data*	structData = static_cast<Data*>(context->data);
-	assert(structData);
-	structData[context->offset].result += structData[context->offset].input0 + structData[context->offset].input1;
-
-
-}
+//void ProcessVoidFunction(void* data)
+//{
+//	Context*	context = static_cast<Context*>(data);
+//	FiberTaskSchedulerAgent*	agent = context->agent;
+//	Data*	structData = static_cast<Data*>(context->data);
+//	assert(structData);
+//	structData[context->offset].result += structData[context->offset].input0 + structData[context->offset].input1;
+//
+//
+//}
 
 int main()
 {
-	auto const logicalCoreCount{ std::thread::hardware_concurrency()};
-	FiberTaskScheduler	pool;
+	//auto const logicalCoreCount{ std::thread::hardware_concurrency()};
+	//FiberTaskScheduler	pool;
 
-	auto constexpr factor{ 1 };
-	auto constexpr declCount{ factor * counter };
-	if (!pool.Initialize(4, declCount))
-	{
-		assert(false);
-		return 0;
-	}
-	
+	//auto constexpr factor{ 1 };
+	//auto constexpr declCount{ factor * counter };
+	//if (!pool.Initialize(4, declCount))
+	//{
+	//	assert(false);
+	//	return 0;
+	//}
+	//
 
 	//TaskDecl	decl[declCount]{};
 	//Data	data[declCount]{};
@@ -113,9 +113,9 @@ int main()
 
 	//pool.DeallocateSyncPrimitive(syncPrim);
 
-	while (true);
+	//while (true);
 
-	pool.Shutdown();
+	//pool.Shutdown();
 
 
 	return 0;

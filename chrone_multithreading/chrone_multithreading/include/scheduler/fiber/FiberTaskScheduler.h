@@ -38,16 +38,15 @@ public:
 	bool	Initialize(Uint threadCount, Uint fiberCount);
 	bool	Shutdown();
 
-	bool	AllocateSyncPrimitive(SyncPrimitive& syncPrimitive);
-	bool	DeallocateSyncPrimitive(SyncPrimitive& syncPrimitive);
+	//bool	AllocateSyncPrimitive(SyncPrimitive& syncPrimitive);
+	//bool	DeallocateSyncPrimitive(SyncPrimitive& syncPrimitive);
 	bool	PushTasks(Uint count, TaskDecl* tasks, SyncPrimitive* sync = nullptr);
-	bool	Wait(SyncPrimitive& prim);
-	bool	CheckFinished(SyncPrimitive& prim);
-	FiberTaskSchedulerAgent*	GetSchedulerAgent();
+	//bool	Wait(SyncPrimitive& prim);
+	//bool	CheckFinished(SyncPrimitive& prim);
 
 private:
 
-	using AtomicCounter = FiberPool::AtomicCounter;
+	//using AtomicCounter = FiberPool::AtomicCounter;
 
 	struct FiberThreadData
 	{
@@ -68,7 +67,7 @@ private:
 
 	struct SyncPrimitiveData
 	{
-		AtomicCounter	counter{};
+		//AtomicCounter	counter{};
 	};
 
 	enum ESTATE { CREATED, INIT };
@@ -89,7 +88,7 @@ private:
 	void	_SwitchToFiber(Fiber* newFiber);
 	void	_PushPreviousThreadFiber(FiberThreadData& fiberThreadData);
 
-	bool	_AllocateAndPushTasks(Uint count, TaskDecl* tasks, std::atomic<Fiber*>* dependencyFiber = nullptr, AtomicCounter* dependencyCoouter = nullptr);
+	//bool	_AllocateAndPushTasks(Uint count, TaskDecl* tasks, std::atomic<Fiber*>* dependencyFiber = nullptr, AtomicCounter* dependencyCoouter = nullptr);
 	bool	_ExecuteAndTryFindFiber();
 
 	SyncPrimitiveData*_AllocateSyncPrimitiveData();
@@ -98,20 +97,8 @@ private:
 	TaskSyncPrimitiveData*_AllocateTaskSyncPrimitiveData();
 	void	_DeallocateTaskSyncPrimitiveData(TaskSyncPrimitiveData* syncPrimitiveData);
 
-	friend class FiberTaskSchedulerProxy;
-	void	_ProxyExecuteTask();
-	void	_ProxyInitFiberFirstEntry();
-	void	_ProxySwitchBackToOriginalThread();
-	void	_ProxyDebugEntryCheck();
-	
-	friend class FiberTaskSchedulerAgent;
-	bool	_AgentAllocateSyncPrimitive(TaskSyncPrimitive& syncPrim);
-	bool	_AgentDeallocateSyncPrimitive(TaskSyncPrimitive& syncPrim);
-	bool	_AgentPushTasks(Uint count, TaskDecl* tasks, TaskSyncPrimitive* syncPrim = nullptr);
-	bool	_AgentWait(TaskSyncPrimitive& syncPrim);
-	bool	_AgentCheckFinished(TaskSyncPrimitive& syncPrim);
 
-	
+	//Threads management
 	ESTATE	_state{ CREATED };
 	std::atomic_bool	_threadsKeepRunning{ true };
 	std::atomic_bool	_threadsEmitError{ false };
@@ -120,13 +107,14 @@ private:
 
 	std::vector<std::thread*>	_threads{};
 	std::vector<FiberThreadData>	_fiberThreadData{};
-	FiberFuncData	_fibersFuncData{};
+
+
+	//
+	//FiberFuncData	_fibersFuncData{};
 	FiberPool _fiberPool{};
 
-	Spinlock	_syncPrimitiveDataLock{};
-	Spinlock	_taskSyncPrimitiveDataLock{};
-
-	FiberTaskSchedulerAgent	_agent{};
+	//Spinlock	_syncPrimitiveDataLock{};
+	//Spinlock	_taskSyncPrimitiveDataLock{};
 
 	Uint	_fiberCount{};
 };

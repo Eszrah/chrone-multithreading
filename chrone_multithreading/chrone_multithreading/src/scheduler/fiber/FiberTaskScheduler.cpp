@@ -10,11 +10,8 @@
 namespace chrone::multithreading::scheduler
 {
 
-FiberTaskScheduler::FiberTaskScheduler():
-	_fibersFuncData{ FiberTaskSchedulerProxy{this}, 
-		std::addressof(_threadsKeepRunning) }
+FiberTaskScheduler::FiberTaskScheduler()
 {
-	_agent._scheduler = this;
 }
 
 
@@ -41,26 +38,26 @@ FiberTaskScheduler::Shutdown()
 }
 
 
-bool
-FiberTaskScheduler::AllocateSyncPrimitive(
-	SyncPrimitive& syncPrimitive)
-{
-	syncPrimitive.data = _AllocateSyncPrimitiveData();
-	return true;
-}
-
-
-bool
-FiberTaskScheduler::DeallocateSyncPrimitive(
-	SyncPrimitive& syncPrimitive)
-{
-	SyncPrimitiveData*	syncPrimitiveData{
-		static_cast<SyncPrimitiveData*>(syncPrimitive.data) };
-	if (!syncPrimitiveData) { return false; }
-	_DeallocateSyncPrimitiveData(syncPrimitiveData);
-	syncPrimitive.data = nullptr;
-	return true;
-}
+//bool
+//FiberTaskScheduler::AllocateSyncPrimitive(
+//	SyncPrimitive& syncPrimitive)
+//{
+//	syncPrimitive.data = _AllocateSyncPrimitiveData();
+//	return true;
+//}
+//
+//
+//bool
+//FiberTaskScheduler::DeallocateSyncPrimitive(
+//	SyncPrimitive& syncPrimitive)
+//{
+//	SyncPrimitiveData*	syncPrimitiveData{
+//		static_cast<SyncPrimitiveData*>(syncPrimitive.data) };
+//	if (!syncPrimitiveData) { return false; }
+//	_DeallocateSyncPrimitiveData(syncPrimitiveData);
+//	syncPrimitive.data = nullptr;
+//	return true;
+//}
 
 
 bool 
@@ -71,53 +68,46 @@ FiberTaskScheduler::PushTasks(
 {
 	if (!count || !tasks) { return false; }
 
-	SyncPrimitiveData*	syncData{ nullptr };
+	//SyncPrimitiveData*	syncData{ nullptr };
 
-	SyncPrimitiveData* syncPrimitiveData{
-		sync ? static_cast<SyncPrimitiveData*>(sync->data) : nullptr };
+	//SyncPrimitiveData* syncPrimitiveData{
+	//	sync ? static_cast<SyncPrimitiveData*>(sync->data) : nullptr };
 
-	if (sync)
-	{
-		assert(syncPrimitiveData);
-	}
+	//if (sync)
+	//{
+	//	assert(syncPrimitiveData);
+	//}
 
-	return _AllocateAndPushTasks(count, tasks, nullptr, 
-		std::addressof(syncPrimitiveData->counter));
+	//return _AllocateAndPushTasks(count, tasks, nullptr, 
+	//	std::addressof(syncPrimitiveData->counter));
 }
 
 
-bool
-FiberTaskScheduler::Wait(
-	SyncPrimitive& prim)
-{
-	SyncPrimitiveData* syncPrimitiveData{
-		static_cast<SyncPrimitiveData*>(prim.data) };
-	assert(syncPrimitiveData);
-	if (!syncPrimitiveData) { return false; }
-
-	while (syncPrimitiveData->counter.load(std::memory_order_acquire) != 0)
-	{
-		std::this_thread::yield();
-	}
-
-	return true;
-}
-
-
-bool 
-FiberTaskScheduler::CheckFinished(
-	SyncPrimitive& prim)
-{
-	return false;
-}
+//bool
+//FiberTaskScheduler::Wait(
+//	SyncPrimitive& prim)
+//{
+//	SyncPrimitiveData* syncPrimitiveData{
+//		static_cast<SyncPrimitiveData*>(prim.data) };
+//	assert(syncPrimitiveData);
+//	if (!syncPrimitiveData) { return false; }
+//
+//	while (syncPrimitiveData->counter.load(std::memory_order_acquire) != 0)
+//	{
+//		std::this_thread::yield();
+//	}
+//
+//	return true;
+//}
 
 
-FiberTaskSchedulerAgent* 
-FiberTaskScheduler::GetSchedulerAgent()
-{
-	return std::addressof(_agent);
-}
-
+//bool 
+//FiberTaskScheduler::CheckFinished(
+//	SyncPrimitive& prim)
+//{
+//	return false;
+//}
+//
 
 void 
 FiberTaskScheduler::_WaitThreads()
@@ -140,20 +130,20 @@ FiberTaskScheduler::_Initialize(
 	Uint threadCount, 
 	Uint fiberCount)
 {
-	_threadsKeepRunning = true;
-	_threadsBarrier = true;
-	_threadsEmitError = false;
-	_threadsCountSignal = 0u;
+	//_threadsKeepRunning = true;
+	//_threadsBarrier = true;
+	//_threadsEmitError = false;
+	//_threadsCountSignal = 0u;
 
-	_threads.resize(threadCount);
-	_fiberThreadData.resize(threadCount);
+	//_threads.resize(threadCount);
+	//_fiberThreadData.resize(threadCount);
 
-	Uint const	totalFiberCount{ fiberCount + threadCount };
-	_fiberCount = fiberCount;
-	_fiberPool.Reserve(fiberCount, totalFiberCount);
+	//Uint const	totalFiberCount{ fiberCount + threadCount };
+	//_fiberCount = fiberCount;
+	//_fiberPool.Reserve(fiberCount, totalFiberCount);
 
 	//std::vector<Fiber>&	fibers{ _fiberPool.fibers };
-	//FiberData*	fiberDataPtr{ std::addressof(_fibersData) };
+	//FiberFuncData*	fiberDataPtr{ std::addressof(_fibersFuncData) };
 	//for (Uint index{ 0u }; index < fiberCount; ++index)
 	//{
 	//	fibers.emplace_back(WindowsFiberHelper::AllocateHFiber(0u,
@@ -170,28 +160,28 @@ FiberTaskScheduler::_Initialize(
 	//	return false;
 	//}
 
-	for (auto index{ 0u }; index < threadCount; ++index)
-	{
-		_threads[index] = new std::thread(&FiberTaskScheduler::_WorkerThreadFunction, 
-			this, index);
-	}
+	//for (auto index{ 0u }; index < threadCount; ++index)
+	//{
+	//	_threads[index] = new std::thread(&FiberTaskScheduler::_WorkerThreadFunction, 
+	//		this, index);
+	//}
 
-	//Waiting all threads have finished initialization
-	_WaitThreadsAndResetCount();
-	_threadsKeepRunning = _threadsEmitError ? false : true;
-	_threadsBarrier.store(false, std::memory_order_release);
+	////Waiting all threads have finished initialization
+	//_WaitThreadsAndResetCount();
+	//_threadsKeepRunning = _threadsEmitError ? false : true;
+	//_threadsBarrier.store(false, std::memory_order_release);
 
-	if (_threadsEmitError)
-	{
-		_JoinThreads();
-		_fiberPool.Clear();
-		return false;
-	}
+	//if (_threadsEmitError)
+	//{
+	//	_JoinThreads();
+	//	_fiberPool.Clear();
+	//	return false;
+	//}
 
-	//making sure they all have passed the barrier
-	_WaitThreadsAndResetCount();
+	////making sure they all have passed the barrier
+	//_WaitThreadsAndResetCount();
 
-	_state = INIT;
+	//_state = INIT;
 	return true;
 }
 
@@ -212,7 +202,7 @@ FiberTaskScheduler::_Shutdown()
 
 	_threads.clear();
 	_fiberThreadData.clear();
-	_fiberPool.Clear();
+	//_fiberPool.Clear();
 
 	return true;
 }
@@ -431,7 +421,7 @@ FiberTaskScheduler::_AllocateAndPushTasks(
 }
 
 
-__declspec(noinline) bool
+bool
 FiberTaskScheduler::_ExecuteAndTryFindFiber()
 {
 	FiberThreadData&	fiberThreadData{ _fiberThreadData[localThreadIndex] };
@@ -496,161 +486,148 @@ _DeallocateTaskSyncPrimitiveData(
 }
 
 
-void 
-FiberTaskScheduler::_ProxyExecuteTask()
-{
-	_ExecuteAndTryFindFiber();
-}
+//void 
+//FiberTaskScheduler::_ProxyExecuteTask()
+//{
+//	_ExecuteAndTryFindFiber();
+//}
+//
+//
+//__declspec(noinline) void
+//FiberTaskScheduler::_ProxyInitFiberFirstEntry()
+//{
+//	FiberThreadData&	fiberThreadData{ _fiberThreadData[localThreadIndex] };
+//	//assert(idArray[localThreadIndex] == std::this_thread::get_id());
+//	//assert(fiberThreadData.previousThreadFiber == localPreviousFiber);
+//	assert(fiberThreadData.previousThreadFiber);
+//	//while (!fiberThreadData.previousThreadFiber);
+//	_fiberPool.PushFreeFiber(fiberThreadData.previousThreadFiber);
+//	fiberThreadData.previousThreadFiber = nullptr;
+//}
+//
+//
+//void 
+//FiberTaskScheduler::_ProxySwitchBackToOriginalThread()
+//{
+//	//SHOULD NOT BE EXECUTED TWICE !!!!!
+//
+//	FiberThreadData&	fiberThreadData{ _fiberThreadData[localThreadIndex] };
+//
+//	if (!fiberThreadData.hasShutdown)
+//	{
+//		//Pushing the old fiber if there is one, could contains another native thread fiber or a classic fiber
+//		_PushPreviousThreadFiber(fiberThreadData);
+//		fiberThreadData.hasShutdown = true;
+//
+//		//Making sure everybody have free its old fiber
+//		_threadsCountSignal.fetch_add(1, std::memory_order_release);
+//		while (_threadsBarrier.load(std::memory_order_acquire));
+//
+//		//signaling we have passed the barrier
+//		_threadsCountSignal.fetch_add(1, std::memory_order_release);
+//	}
+//
+//	//Waiting for all other threads to complete their operations
+//	_threadsCountSignal.fetch_add(1, std::memory_order_release);
+//	while (_threadsCountSignal.load(std::memory_order_acquire) != 0u);
+//
+//	//Switching to the thread original fiber
+//	_SwitchToFiber(std::addressof(fiberThreadData.threadFiber));
+//	/*WindowsFiberHelper::SwitchToFiber(fiberThreadData.threadFiber.fiberHandle);*/
+//}
 
 
-__declspec(noinline) void
-FiberTaskScheduler::_ProxyInitFiberFirstEntry()
-{
-	FiberThreadData&	fiberThreadData{ _fiberThreadData[localThreadIndex] };
-	//assert(idArray[localThreadIndex] == std::this_thread::get_id());
-	//assert(fiberThreadData.previousThreadFiber == localPreviousFiber);
-	assert(fiberThreadData.previousThreadFiber);
-	//while (!fiberThreadData.previousThreadFiber);
-	_fiberPool.PushFreeFiber(fiberThreadData.previousThreadFiber);
-	fiberThreadData.previousThreadFiber = nullptr;
-}
-
-
-void 
-FiberTaskScheduler::_ProxySwitchBackToOriginalThread()
-{
-	//SHOULD NOT BE EXECUTED TWICE !!!!!
-
-	FiberThreadData&	fiberThreadData{ _fiberThreadData[localThreadIndex] };
-
-	if (!fiberThreadData.hasShutdown)
-	{
-		//Pushing the old fiber if there is one, could contains another native thread fiber or a classic fiber
-		_PushPreviousThreadFiber(fiberThreadData);
-		fiberThreadData.hasShutdown = true;
-
-		//Making sure everybody have free its old fiber
-		_threadsCountSignal.fetch_add(1, std::memory_order_release);
-		while (_threadsBarrier.load(std::memory_order_acquire));
-
-		//signaling we have passed the barrier
-		_threadsCountSignal.fetch_add(1, std::memory_order_release);
-	}
-
-	//Waiting for all other threads to complete their operations
-	_threadsCountSignal.fetch_add(1, std::memory_order_release);
-	while (_threadsCountSignal.load(std::memory_order_acquire) != 0u);
-
-	//Switching to the thread original fiber
-	_SwitchToFiber(std::addressof(fiberThreadData.threadFiber));
-	/*WindowsFiberHelper::SwitchToFiber(fiberThreadData.threadFiber.fiberHandle);*/
-}
-
-__declspec(noinline) void FiberTaskScheduler::_ProxyDebugEntryCheck()
-{
-	FiberThreadData&	fiberThreadData{ _fiberThreadData[localThreadIndex] };
-	assert(fiberThreadData.previousThreadFiber);
-	while (!fiberThreadData.previousThreadFiber);
-	if (!fiberThreadData.previousThreadFiber)
-	{
-		WindowsFiberHelper::SwitchToFiber(previousFiberBuffer[index - 1]);
-	}
-	//assert(fiberThreadData.previousThreadFiber == localPreviousFiber);
-	//assert(fiberThreadData.previousThreadFiber);
-}
-
-
-bool 
-FiberTaskScheduler::_AgentAllocateSyncPrimitive(
-	TaskSyncPrimitive& syncPrim)
-{
-	syncPrim.data = _AllocateTaskSyncPrimitiveData();
-	return true;
-}
-
-
-bool 
-FiberTaskScheduler::_AgentDeallocateSyncPrimitive(
-	TaskSyncPrimitive& syncPrim)
-{
-	TaskSyncPrimitiveData*	syncPrimitiveData{ 
-		static_cast<TaskSyncPrimitiveData*>(syncPrim.data) };
-	if (!syncPrimitiveData) { return false; }
-
-	_DeallocateTaskSyncPrimitiveData(syncPrimitiveData);
-	syncPrim.data = nullptr;
-	return true;
-}
-
-
-bool
-FiberTaskScheduler::_AgentPushTasks(
-	Uint count, 
-	TaskDecl* tasks, 
-	TaskSyncPrimitive* syncPrim)
-{
-	if (!count || !tasks) { return false; }
-	TaskSyncPrimitiveData* syncPrimitiveData{ syncPrim ? 
-		static_cast<TaskSyncPrimitiveData*>(syncPrim->data) : nullptr };
-
-	if (syncPrim)
-	{
-		assert(syncPrimitiveData);
-	}
-
-	return _AllocateAndPushTasks(count, tasks, nullptr, 
-		std::addressof(syncPrimitiveData->dependencyCoouter));
-}
-
-
-bool 
-FiberTaskScheduler::_AgentWait(
-	TaskSyncPrimitive& syncPrim)
-{
-	//FiberThreadData&	fiberThreadData{ _fiberThreadData[localThreadIndex] };
-	//Fiber*	currentThreadFiber{ fiberThreadData.currentThreadFiber };
-
-	//TaskSyncPrimitiveData* syncPrimitiveData{ 
-	//	static_cast<TaskSyncPrimitiveData*>(syncPrim.data) };
-	//assert(syncPrimitiveData);
-
-	////ADD an if to prevent user mistake ? + a free ?
-	//auto&	atomicDependencyCounter{ syncPrimitiveData->dependencyCoouter };
-	//atomicDependencyCounter.fetch_add(1u,
-	//	std::memory_order_release);
-
-	//syncPrimitiveData->dependencyFiber.store(currentThreadFiber, 
-	//	std::memory_order_release);
-
-	//Fiber*	newFiber{ nullptr };
-
-	//while (atomicDependencyCounter.load(std::memory_order_acquire) != 1u)
-	//{
-	//	if (!_fiberPool.TryPopWaitingFiber(newFiber))
-	//	{
-	//		_fiberPool.TryPopReadyFiber(newFiber);
-	//	}
-
-	//	if (!newFiber) { continue; }
-	//	fiberThreadData.waitingSyncPrimitive = syncPrimitiveData;
-	//	_SwitchToFiber(newFiber);
-	//	assert(atomicDependencyCounter.load(std::memory_order_acquire) == 0u);
-	//}
-
-	return true;
-}
-
-
-bool 
-FiberTaskScheduler::_AgentCheckFinished(
-	TaskSyncPrimitive& syncPrim)
-{
-	TaskSyncPrimitiveData* syncPrimitiveData{
-		static_cast<TaskSyncPrimitiveData*>(syncPrim.data) };
-	assert(syncPrimitiveData);
-
-	auto&	atomicDependencyCounter{ syncPrimitiveData->dependencyCoouter };
-	return (atomicDependencyCounter.load(std::memory_order_acquire) == 0u);
-}
+//bool 
+//FiberTaskScheduler::_AgentAllocateSyncPrimitive(
+//	TaskSyncPrimitive& syncPrim)
+//{
+//	syncPrim.data = _AllocateTaskSyncPrimitiveData();
+//	return true;
+//}
+//
+//
+//bool 
+//FiberTaskScheduler::_AgentDeallocateSyncPrimitive(
+//	TaskSyncPrimitive& syncPrim)
+//{
+//	TaskSyncPrimitiveData*	syncPrimitiveData{ 
+//		static_cast<TaskSyncPrimitiveData*>(syncPrim.data) };
+//	if (!syncPrimitiveData) { return false; }
+//
+//	_DeallocateTaskSyncPrimitiveData(syncPrimitiveData);
+//	syncPrim.data = nullptr;
+//	return true;
+//}
+//
+//
+//bool
+//FiberTaskScheduler::_AgentPushTasks(
+//	Uint count, 
+//	TaskDecl* tasks, 
+//	TaskSyncPrimitive* syncPrim)
+//{
+//	if (!count || !tasks) { return false; }
+//	TaskSyncPrimitiveData* syncPrimitiveData{ syncPrim ? 
+//		static_cast<TaskSyncPrimitiveData*>(syncPrim->data) : nullptr };
+//
+//	if (syncPrim)
+//	{
+//		assert(syncPrimitiveData);
+//	}
+//
+//	return _AllocateAndPushTasks(count, tasks, nullptr, 
+//		std::addressof(syncPrimitiveData->dependencyCoouter));
+//}
+//
+//
+//bool 
+//FiberTaskScheduler::_AgentWait(
+//	TaskSyncPrimitive& syncPrim)
+//{
+//	//FiberThreadData&	fiberThreadData{ _fiberThreadData[localThreadIndex] };
+//	//Fiber*	currentThreadFiber{ fiberThreadData.currentThreadFiber };
+//
+//	//TaskSyncPrimitiveData* syncPrimitiveData{ 
+//	//	static_cast<TaskSyncPrimitiveData*>(syncPrim.data) };
+//	//assert(syncPrimitiveData);
+//
+//	////ADD an if to prevent user mistake ? + a free ?
+//	//auto&	atomicDependencyCounter{ syncPrimitiveData->dependencyCoouter };
+//	//atomicDependencyCounter.fetch_add(1u,
+//	//	std::memory_order_release);
+//
+//	//syncPrimitiveData->dependencyFiber.store(currentThreadFiber, 
+//	//	std::memory_order_release);
+//
+//	//Fiber*	newFiber{ nullptr };
+//
+//	//while (atomicDependencyCounter.load(std::memory_order_acquire) != 1u)
+//	//{
+//	//	if (!_fiberPool.TryPopWaitingFiber(newFiber))
+//	//	{
+//	//		_fiberPool.TryPopReadyFiber(newFiber);
+//	//	}
+//
+//	//	if (!newFiber) { continue; }
+//	//	fiberThreadData.waitingSyncPrimitive = syncPrimitiveData;
+//	//	_SwitchToFiber(newFiber);
+//	//	assert(atomicDependencyCounter.load(std::memory_order_acquire) == 0u);
+//	//}
+//
+//	return true;
+//}
+//
+//
+//bool 
+//FiberTaskScheduler::_AgentCheckFinished(
+//	TaskSyncPrimitive& syncPrim)
+//{
+//	TaskSyncPrimitiveData* syncPrimitiveData{
+//		static_cast<TaskSyncPrimitiveData*>(syncPrim.data) };
+//	assert(syncPrimitiveData);
+//
+//	auto&	atomicDependencyCounter{ syncPrimitiveData->dependencyCoouter };
+//	return (atomicDependencyCounter.load(std::memory_order_acquire) == 0u);
+//}
 
 }

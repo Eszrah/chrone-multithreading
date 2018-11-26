@@ -7,24 +7,24 @@ void __stdcall
 FiberEntryPoint(
 	void * data)
 {
-	using namespace chrone::multithreading::scheduler;
+	//using namespace chrone::multithreading::scheduler;
 
-	FiberFuncData*	fiberFuncData = static_cast<FiberFuncData*>(data);
-	auto&	keepRunning{ *(fiberFuncData->keepRunning) };
-	auto&	schedulerProxy{ fiberFuncData->schedulerProxy };
+	//FiberFuncData*	fiberFuncData = static_cast<FiberFuncData*>(data);
+	//auto&	keepRunning{ *(fiberFuncData->keepRunning) };
+	//auto&	schedulerProxy{ fiberFuncData->schedulerProxy };
 
-	schedulerProxy.DebugEntryCheck();
+	//schedulerProxy.DebugEntryCheck();
 
-	if (keepRunning)
-	{
-		schedulerProxy.InitFiberFirstEntry();
-	}
+	//if (keepRunning)
+	//{
+	//	schedulerProxy.InitFiberFirstEntry();
+	//}
 
-	while (keepRunning)
-	{
-		schedulerProxy.ExecuteTask();
-	}
+	//while (keepRunning)
+	//{
+	//	schedulerProxy.ExecuteTask();
+	//}
 
-	//GO BACK TO THE ORIGINAL THREAD FUNCTION TO END EXECUTION
-	schedulerProxy.SwitchBackToOriginalThread();
+	////GO BACK TO THE ORIGINAL THREAD FUNCTION TO END EXECUTION
+	//schedulerProxy.SwitchBackToOriginalThread();
 }

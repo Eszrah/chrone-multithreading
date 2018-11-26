@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NativeType.h"
-#include "Task.h"
+#include "TaskDecl.h"
 
 namespace chrone::multithreading::scheduler
 {
@@ -13,20 +13,13 @@ struct Fiber
 	Fiber(Fiber&&) = default;
 	~Fiber() = default;
 
-	explicit Fiber(void* hFiber) :
-		fiberHandle{hFiber}
-	{}
-
 	Fiber&	operator=(const Fiber&) = delete;
 	Fiber&	operator=(Fiber&&) = default;
 
 	void*	fiberHandle{ nullptr };
-	Task	task{};
+	TaskDecl	decl{};
+	std::atomic<Fiber*>*	dependencyFiber{ nullptr };
+	std::atomic<int>*	dependencyCoouter{ nullptr };
 };
-
-/*
-	inline bool Execute() { return task.Execute(); }
-	inline bool CheckedExecute() { return task.CheckedExecute(); }
-*/
 
 }
