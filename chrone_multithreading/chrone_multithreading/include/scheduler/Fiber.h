@@ -13,6 +13,13 @@ struct Fiber
 	Fiber(Fiber&&) = default;
 	~Fiber() = default;
 
+	Fiber(void*	fiberHandle):
+		fiberHandle{ fiberHandle },
+		decl{},
+		dependencyFiber{ nullptr },
+		dependencyCoouter{ nullptr }
+	{}
+
 	Fiber&	operator=(const Fiber&) = delete;
 	Fiber&	operator=(Fiber&&) = default;
 

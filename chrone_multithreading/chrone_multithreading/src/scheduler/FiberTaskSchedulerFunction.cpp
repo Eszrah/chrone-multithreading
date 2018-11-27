@@ -7,14 +7,15 @@
 
 #include <algorithm>
 
+
 namespace chrone::multithreading::scheduler
 {
 
-bool 
-FiberPoolSchedulerFunction::Initialize(
+bool
+FiberTaskSchedulerFunction::Initialize(
 	FiberTaskSchedulerData& scheduler,
-	Uint threadCount, 
-	Uint fiberCount)
+	const Uint threadCount, 
+	const Uint fiberCount)
 {
 	if (!threadCount ||
 		!fiberCount || fiberCount < threadCount)
@@ -25,6 +26,7 @@ FiberPoolSchedulerFunction::Initialize(
 	ThreadsData&	threadsData{ scheduler.threadsData };
 	FiberPool&	fiberPool{ scheduler.fiberPool };
 	std::vector<Fiber>&	fibers{ scheduler.fibers };
+	std::vector<FiberData>&	fibersData{ scheduler.fibersData };
 	std::vector<std::thread*>&	threads{ threadsData.threads };
 
 	threadsData.threadsKeepRunning = true;
@@ -33,9 +35,15 @@ FiberPoolSchedulerFunction::Initialize(
 	threadsData.threadsCountSignal = 0u;
 
 	threads.resize(threadCount);
+	fibersData.reserve(threadCount + fiberCount);
 	fibers.reserve(fiberCount);
 	
 	FiberPoolFunction::Reserve(fiberPool, fiberCount);
+
+	for (Uint index{ 0u }; index < threadCount + fiberCount; ++index)
+	{
+		fibersData.emplace_back(0xFFFFFFFF, &scheduler);
+	}
 
 	for (Uint index{ 0u }; index < fiberCount; ++index)
 	{
@@ -92,18 +100,19 @@ FiberPoolSchedulerFunction::Initialize(
 
 
 bool
-FiberPoolSchedulerFunction::Shutdown(
+FiberTaskSchedulerFunction::Shutdown(
 	FiberTaskSchedulerData& scheduler)
 {
+	return false;
 }
 
-void FiberPoolSchedulerFunction::_WaitAnddResetCounter(std::atomic<Uint>& counter, Uint count)
+void FiberTaskSchedulerFunction::_WaitAnddResetCounter(std::atomic<Uint>& counter, Uint count)
 {
 	while (counter != count);
 	counter = 0u;
 }
 
-void FiberPoolSchedulerFunction::_JoinAndDeleteThreads(ThreadsData& threadsData)
+void FiberTaskSchedulerFunction::_JoinAndDeleteThreads(ThreadsData& threadsData)
 {
 	std::vector<std::thread*>&	threads{ threadsData.threads };
 

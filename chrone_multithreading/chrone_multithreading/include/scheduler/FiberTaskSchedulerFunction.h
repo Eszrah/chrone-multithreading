@@ -8,17 +8,19 @@ namespace std
 	struct atomic;
 }
 
+
+
 namespace chrone::multithreading::scheduler
 {
 
 struct FiberTaskSchedulerData;
 struct ThreadsData;
 
-struct FiberPoolSchedulerFunction 
+struct FiberTaskSchedulerFunction
 {
 
 	static bool	Initialize(FiberTaskSchedulerData& scheduler,
-		Uint threadCount, Uint fiberCount);
+		const Uint threadCount, const Uint fiberCount);
 
 	static bool	Shutdown(FiberTaskSchedulerData& scheduler);
 

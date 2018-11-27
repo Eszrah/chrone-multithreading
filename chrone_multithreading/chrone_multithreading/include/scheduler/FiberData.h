@@ -5,12 +5,19 @@
 namespace chrone::multithreading::scheduler
 {
 
-struct FiberTaskScheduler;
+struct FiberTaskSchedulerData;
 
 struct FiberData
 {
-	Uint8	threadIndex{ 0xFFFFFFFF };
-	FiberTaskScheduler*	scheduler{ nullptr };
+	FiberData() = default;
+
+	FiberData(const Uint8 threadIndex, FiberTaskSchedulerData* scheduler):
+		threadIndex{ threadIndex },
+		scheduler{ scheduler }
+	{}
+
+	Uint8	threadIndex{ 0 };
+	FiberTaskSchedulerData*	scheduler{ nullptr };
 };
 
 }

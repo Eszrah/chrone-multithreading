@@ -54,16 +54,13 @@
     <ClInclude Include="src\scheduler\FiberPoolFunction.cpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\scheduler\FiberTaskSchedulerFunction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scheduler\FiberTaskSchedulerFunction.cpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\scheduler\WorkerFiberEntryPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\scheduler\WorkerThreadEntryPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scheduler\FiberTaskSchedulerFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -78,6 +75,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scheduler\WorkerFiberEntryPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scheduler\FiberTaskSchedulerFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

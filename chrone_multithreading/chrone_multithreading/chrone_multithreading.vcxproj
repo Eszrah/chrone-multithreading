@@ -120,10 +120,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\container\LockFreeLinkedList.h" />
+    <ClInclude Include="include\scheduler\FiberTaskSchedulerFunction.h" />
     <ClInclude Include="include\NativeType.h" />
     <ClInclude Include="include\scheduler\FiberData.h" />
     <ClInclude Include="include\scheduler\FiberPoolFunction.h" />
-    <ClInclude Include="include\scheduler\FiberTaskSchedulerFunction.h" />
     <ClInclude Include="include\scheduler\ThreadFiberData.h" />
     <ClInclude Include="include\scheduler\Fiber.h" />
     <ClInclude Include="include\scheduler\FiberPool.h" />
@@ -135,9 +135,9 @@
     <ClInclude Include="include\Spinlock.h" />
     <ClInclude Include="include\std_extension\SpinlockStdExt.h" />
     <ClInclude Include="src\scheduler\FiberPoolFunction.cpp" />
-    <ClInclude Include="src\scheduler\FiberTaskSchedulerFunction.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\scheduler\FiberTaskSchedulerFunction.cpp" />
     <ClCompile Include="src\scheduler\WindowsFiberHelper.cpp" />
     <ClCompile Include="src\scheduler\WorkerFiberEntryPoint.cpp" />
     <ClCompile Include="src\scheduler\WorkerThreadEntryPoint.cpp" />
