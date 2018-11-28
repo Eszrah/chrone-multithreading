@@ -3,6 +3,6 @@
 namespace chrone::multithreading::scheduler
 {
 
-void __stdcall WorkerFiberEntryPoint(void* data);
+	void __stdcall WorkerFiberEntryPoint(void* data);
 
 }

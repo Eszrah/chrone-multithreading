@@ -45,10 +45,10 @@ FiberTaskSchedulerFunction::Initialize(
 		fibersData.emplace_back(0xFFFFFFFF, &scheduler);
 	}
 
-	for (Uint index{ 0u }; index < fiberCount; ++index)
+	for (Uint index{ 0u }, fiberDataIndex{ threadCount }; index < fiberCount; ++index, ++fiberDataIndex)
 	{
 		fibers.emplace_back(WindowsFiberHelper::AllocateHFiber(0u,
-			WorkerFiberEntryPoint, nullptr)); //TO BE FIXED
+			WorkerFiberEntryPoint, &fibersData[fiberDataIndex])); //TO BE FIXED
 	}
 
 
@@ -76,7 +76,7 @@ FiberTaskSchedulerFunction::Initialize(
 	//Creating threads
 	for (auto index{ 0u }; index < threadCount; ++index)
 	{
-		threads[index] = new std::thread(WorkerThreadEntryPoint, 
+		threads[index] = new std::thread(WorkerThreadFunction::EntryPoint,
 			WorkerThreadFuncData{ index, &scheduler });
 	}
 

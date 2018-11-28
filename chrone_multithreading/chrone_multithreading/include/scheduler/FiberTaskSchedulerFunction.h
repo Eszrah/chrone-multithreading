@@ -8,8 +8,6 @@ namespace std
 	struct atomic;
 }
 
-
-
 namespace chrone::multithreading::scheduler
 {
 

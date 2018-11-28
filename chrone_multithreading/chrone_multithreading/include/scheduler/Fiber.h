@@ -1,5 +1,11 @@
 #pragma once
 
+namespace std
+{
+	template<class _Ty>
+	struct atomic;
+}
+
 #include "NativeType.h"
 #include "TaskDecl.h"
 

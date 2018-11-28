@@ -13,7 +13,11 @@ struct WorkerThreadFuncData
 	FiberTaskSchedulerData*	scheduler{ nullptr };
 };
 
+struct WorkerThreadFunction 
+{
+	static void	EntryPoint(WorkerThreadFuncData funcData);
 
-void WorkerThreadEntryPoint(WorkerThreadFuncData funcData);
-
+	static bool	_Initialize(WorkerThreadFuncData funcData);
+	static bool	_Shutdown(WorkerThreadFuncData funcData);
+};
 }

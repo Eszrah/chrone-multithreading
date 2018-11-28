@@ -5,15 +5,15 @@
 namespace chrone::multithreading::scheduler
 {
 
-struct FiberPool;
-struct Fiber;
+	struct FiberPool;
+	struct Fiber;
 
-struct FiberPoolFunction 
-{
-	static void	Clear(FiberPool& pool);
-	static void	Reserve(FiberPool& pool, Uint fiberCount);
-	static void	PushFreeFiber(FiberPool& pool, Fiber* fiber);
-	static bool	TryPopReadyFiber(FiberPool& pool, Fiber*& fiber);
-};
+	struct FiberPoolFunction
+	{
+		static void	Clear(FiberPool& pool);
+		static void	Reserve(FiberPool& pool, Uint fiberCount);
+		static void	PushFreeFiber(FiberPool& pool, Fiber* fiber);
+		static bool	TryPopReadyFiber(FiberPool& pool, Fiber*& fiber);
+	};
 
 }
