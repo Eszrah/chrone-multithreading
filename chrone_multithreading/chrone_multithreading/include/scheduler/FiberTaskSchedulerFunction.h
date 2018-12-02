@@ -24,7 +24,8 @@ struct FiberTaskSchedulerFunction
 
 
 	static void	_WaitAnddResetCounter(std::atomic<Uint>& counter, Uint count);
-	static void _JoinAndDeleteThreads(ThreadsData& threadsData);
+	static void _JoinThreads(ThreadsData& threadsData);
+	static void _Clear(FiberTaskSchedulerData& scheduler);
 };
 
 }

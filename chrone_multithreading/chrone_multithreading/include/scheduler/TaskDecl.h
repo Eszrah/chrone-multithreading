@@ -12,6 +12,11 @@ struct TaskDecl
 	inline TaskDecl(TaskDecl&& other) = default;
 	~TaskDecl() = default;
 
+	TaskDecl(TaskDeclFunc functor, void* data):
+		functor{ functor },
+		data{ data }
+	{}
+
 	TaskDecl&	operator=(const TaskDecl&) = delete;
 	inline TaskDecl&	operator=(TaskDecl&& other) = default;
 

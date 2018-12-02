@@ -18,6 +18,7 @@ struct ThreadsData
 	std::atomic<Uint>	threadsCountSignal{ 0u };
 
 	std::vector<std::thread*>	threads{};
+	std::vector<bool>	threadsShutdownState{};
 };
 
 struct FiberTaskSchedulerData

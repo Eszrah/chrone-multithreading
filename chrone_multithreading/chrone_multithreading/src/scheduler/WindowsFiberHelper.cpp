@@ -53,4 +53,9 @@ WindowsFiberHelper::GetCurrentFiber()
 	return ::GetCurrentFiber();
 }
 
+void * WindowsFiberHelper::GetCurrentFiberData()
+{
+	return ::GetFiberData();
+}
+
 }

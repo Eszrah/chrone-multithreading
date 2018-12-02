@@ -16,6 +16,11 @@ struct WindowsFiberHelper
 	static void	SwitchToFiber(void* hFiber);
 
 	static void*	GetCurrentFiber();
+	static void*	GetCurrentFiberData();
+
+	template<class T>
+	static T* GetCurrentFiberData() 
+		{ return static_cast<T*>(GetCurrentFiberData()); }
 };
 
 }

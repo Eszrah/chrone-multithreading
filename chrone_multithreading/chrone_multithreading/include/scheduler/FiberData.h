@@ -16,7 +16,7 @@ struct FiberData
 		scheduler{ scheduler }
 	{}
 
-	Uint8	threadIndex{ 0 };
+	Uint8	threadIndex{ 0xFF };
 	FiberTaskSchedulerData*	scheduler{ nullptr };
 };
 

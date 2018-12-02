@@ -25,7 +25,7 @@ public:
 	{	// construct but don't lock
 	}
 
-	~lock_guard() _NOEXCEPT
+	~lock_guard() noexcept
 	{	// unlock
 		_MyMutex.Unlock();
 	}
@@ -46,7 +46,7 @@ public:
 	typedef unique_lock<mutex_type> _Myt;
 
 	// CONSTRUCT, ASSIGN, AND DESTROY
-	unique_lock() _NOEXCEPT
+	unique_lock() noexcept
 		: _Pmtx(0), _Owns(false)
 	{	// default construct
 	}
@@ -63,7 +63,7 @@ public:
 	{	// construct and assume already locked
 	}
 
-	unique_lock(mutex_type& _Mtx, defer_lock_t) _NOEXCEPT
+	unique_lock(mutex_type& _Mtx, defer_lock_t) noexcept
 		: _Pmtx(_STD addressof(_Mtx)), _Owns(false)
 	{	// construct but don't lock
 	}
@@ -73,7 +73,7 @@ public:
 	{	// construct and try to lock
 	}
 
-	unique_lock(unique_lock&& _Other) _NOEXCEPT
+	unique_lock(unique_lock&& _Other) noexcept
 		: _Pmtx(_Other._Pmtx), _Owns(_Other._Owns)
 	{	// destructive copy
 		_Other._Pmtx = 0;
@@ -94,7 +94,7 @@ public:
 		return (*this);
 	}
 
-	~unique_lock() _NOEXCEPT
+	~unique_lock() noexcept
 	{	// clean up
 		if (_Owns)
 			_Pmtx->Unlock();
@@ -120,20 +120,20 @@ public:
 	void unlock()
 	{	// try to unlock the mutex
 		if (!_Pmtx || !_Owns)
-			_THROW(system_error,
-				_STD make_error_code(errc::operation_not_permitted));
+			throw(system_error(
+				_STD make_error_code(errc::operation_not_permitted)));
 
 		_Pmtx->Unlock();
 		_Owns = false;
 	}
 
-	void swap(unique_lock& _Other) _NOEXCEPT
+	void swap(unique_lock& _Other) noexcept
 	{	// swap with _Other
 		_STD swap(_Pmtx, _Other._Pmtx);
 		_STD swap(_Owns, _Other._Owns);
 	}
 
-	mutex_type *release() _NOEXCEPT
+	mutex_type *release() noexcept
 	{	// disconnect
 		mutex_type *_Res = _Pmtx;
 		_Pmtx = 0;
@@ -141,17 +141,17 @@ public:
 		return (_Res);
 	}
 
-	bool owns_lock() const _NOEXCEPT
+	bool owns_lock() const noexcept
 	{	// return true if this object owns the lock
 		return (_Owns);
 	}
 
-	explicit operator bool() const _NOEXCEPT
+	explicit operator bool() const noexcept
 	{	// return true if this object owns the lock
 		return (_Owns);
 	}
 
-	mutex_type *mutex() const _NOEXCEPT
+	mutex_type *mutex() const noexcept
 	{	// return pointer to managed mutex
 		return (_Pmtx);
 	}
@@ -163,13 +163,18 @@ private:
 	void _Validate() const
 	{	// check if the mutex can be locked
 		if (!_Pmtx)
-			_THROW(system_error,
-				_STD make_error_code(errc::operation_not_permitted));
+			throw(system_error(
+				_STD make_error_code(errc::operation_not_permitted)));
 
 		if (_Owns)
-			_THROW(system_error,
-				_STD make_error_code(errc::resource_deadlock_would_occur));
+			throw(system_error(
+				_STD make_error_code(errc::resource_deadlock_would_occur)));
 	}
 };
 
+}
+
+namespace chrone::multithreading::scheduler
+{
+	using LockGuardSpinLock = std::lock_guard<Spinlock>;
 }

@@ -10,10 +10,17 @@ using namespace chrone::multithreading::scheduler;
 int main()
 {
 	FiberTaskSchedulerData	scheduler;
-	const Uint	threadCount = 4;
+	const Uint	threadCount = 8;
 	const Uint	fiberCount = 100;
 
 	FiberTaskSchedulerFunction::Initialize(scheduler, threadCount, fiberCount);
+
+	while (true)
+	{
+
+	}
+
+	FiberTaskSchedulerFunction::Shutdown(scheduler);
 
 	return 0;
 }

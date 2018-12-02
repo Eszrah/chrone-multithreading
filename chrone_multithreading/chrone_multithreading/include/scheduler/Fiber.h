@@ -2,15 +2,34 @@
 
 namespace std
 {
-	template<class _Ty>
+	template<class T>
 	struct atomic;
 }
 
 #include "NativeType.h"
 #include "TaskDecl.h"
+#include "DummyTaskFunctor.h"
 
 namespace chrone::multithreading::scheduler
 {
+
+struct FiberData;
+struct Fiber;
+
+struct Task
+{
+	Task() = default;
+	Task(const Task&) = delete;
+	Task(Task&&) = default;
+	~Task() = default;
+
+	Task&	operator=(const Task&) = delete;
+	Task&	operator=(Task&&) = default;
+
+	TaskDecl	decl{ DummyTaskFunctor, nullptr };
+	std::atomic<Fiber*>*	dependencyFiber{ nullptr };
+	std::atomic<int>*	dependencyCoouter{ nullptr };
+};
 
 struct Fiber
 {
@@ -19,20 +38,18 @@ struct Fiber
 	Fiber(Fiber&&) = default;
 	~Fiber() = default;
 
-	Fiber(void*	fiberHandle):
+	Fiber(void*	fiberHandle, FiberData* fiberData):
+		fiberData{ fiberData },
 		fiberHandle{ fiberHandle },
-		decl{},
-		dependencyFiber{ nullptr },
-		dependencyCoouter{ nullptr }
+		task{}
 	{}
 
 	Fiber&	operator=(const Fiber&) = delete;
 	Fiber&	operator=(Fiber&&) = default;
 
+	FiberData*	fiberData{ nullptr };
 	void*	fiberHandle{ nullptr };
-	TaskDecl	decl{};
-	std::atomic<Fiber*>*	dependencyFiber{ nullptr };
-	std::atomic<int>*	dependencyCoouter{ nullptr };
+	Task	task{};
 };
 
 }

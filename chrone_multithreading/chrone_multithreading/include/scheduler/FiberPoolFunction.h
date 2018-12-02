@@ -13,6 +13,7 @@ namespace chrone::multithreading::scheduler
 		static void	Clear(FiberPool& pool);
 		static void	Reserve(FiberPool& pool, Uint fiberCount);
 		static void	PushFreeFiber(FiberPool& pool, Fiber* fiber);
+		static void	PushFreeFibers_NotConcurrent(FiberPool& pool, const Uint count, Fiber* fiber);
 		static bool	TryPopReadyFiber(FiberPool& pool, Fiber*& fiber);
 	};
 
