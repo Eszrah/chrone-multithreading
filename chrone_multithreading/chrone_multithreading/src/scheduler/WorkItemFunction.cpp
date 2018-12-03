@@ -1,5 +1,7 @@
 #include "scheduler/WorkItemFunction.h"
 
+#include <cassert>
+
 #include "scheduler/FiberTaskSchedulerData.h"
 #include "scheduler/FiberPoolFunction.h"
 #include "scheduler/FiberFunction.h"
@@ -49,7 +51,9 @@ WorkItemFunction::MainLoop(
 				FiberFunction::SwitchToFiber(fiberPool, threadFiberData, newFiber);
 				threadIndex = FiberFunction::GetFiberData()->threadIndex;
 				threadFiberData = threadFibersData[threadIndex];
-				FiberFunction::PushPreviousFiber(fiberPool, threadFiberData);
+				assert(threadFiberData.previousFiber);
+				FiberPoolFunction::PushFreeFiber(fiberPool, threadFiberData.previousFiber);
+				threadFiberData.previousFiber = nullptr;
 			}
 		}
 	}

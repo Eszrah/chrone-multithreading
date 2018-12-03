@@ -38,28 +38,6 @@ FiberFunction::SwitchToFiber(
 	WindowsFiberHelper::SwitchToFiber(newFiber->fiberHandle);
 }
 
-void
-FiberFunction::PushPreviousFiberChecked(
-	FiberPool& fiberPool,
-	ThreadFiberData& threadFiberData)
-{
-	if (threadFiberData.previousFiber)
-	{
-		FiberPoolFunction::PushFreeFiber(fiberPool, threadFiberData.previousFiber);
-		threadFiberData.previousFiber = nullptr;
-	}
-}
-
-void 
-FiberFunction::PushPreviousFiber(
-	FiberPool& fiberPool, 
-	ThreadFiberData& threadFiberData)
-{
-	assert(threadFiberData.previousFiber);
-	FiberPoolFunction::PushFreeFiber(fiberPool, threadFiberData.previousFiber);
-	threadFiberData.previousFiber = nullptr;
-}
-
 
 bool
 FiberFunction::ExecuteFiberTask(

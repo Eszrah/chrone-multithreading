@@ -6,6 +6,7 @@
 #include <cassert>
 
 #include "scheduler/FiberTaskSchedulerData.h"
+#include "scheduler/FiberPoolFunction.h"
 #include "scheduler/FiberFunction.h"
 #include "scheduler/WindowsFiberHelper.h"
 #include "scheduler/WorkItemFunction.h"
@@ -87,7 +88,11 @@ WorkerThreadFunction::_Shutdown()
 
 	//Pushing the old fiber if there is one(could go to shutdown without never having switched to another fiber)
 	//could contains another native thread fiber or a classic fiber
-	FiberFunction::PushPreviousFiberChecked(fiberPool, threadFiberData);
+	if (threadFiberData.previousFiber)
+	{
+		FiberPoolFunction::PushFreeFiber(fiberPool, threadFiberData.previousFiber);
+		threadFiberData.previousFiber = nullptr;
+	}
 	
 	//Making sure everybody have free its old fiber
 	threadsData.threadsCountSignal.fetch_add(1, std::memory_order_release);
@@ -104,8 +109,9 @@ WorkerThreadFunction::_Shutdown()
 	//You are now in another fiber
 	threadIndex = FiberFunction::GetFiberData()->threadIndex;
 	threadFiberData = threadFibersData[threadIndex];
-	FiberFunction::PushPreviousFiber(fiberPool, threadFiberData);
-
+	assert(threadFiberData.previousFiber);
+	FiberPoolFunction::PushFreeFiber(fiberPool, threadFiberData.previousFiber);
+	threadFiberData.previousFiber = nullptr;
 	return true;
 }
 

@@ -1,6 +1,9 @@
 #include "scheduler/WorkerFiberEntryPoint.h"
 
+#include <cassert>
+
 #include "scheduler/FiberTaskSchedulerData.h"
+#include "scheduler/FiberPoolFunction.h"
 #include "scheduler/FiberData.h"
 #include "scheduler/FiberFunction.h"
 #include "scheduler/WorkItemFunction.h"
@@ -13,8 +16,24 @@ WorkerFiberEntryPoint(
 	void* data)
 {
 	FiberData*	fiberData{ static_cast<FiberData*>(data) };
+	const Uint8	threadIndex{ fiberData->threadIndex };
+	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
 
-	WorkItemFunction::MainLoop(*fiberData->scheduler);
+	if (!scheduler->threadsData.threadsKeepRunning)
+	{
+		ThreadFiberData&	threadFiberData{
+			scheduler->threadFibersData[threadIndex] };
+
+		assert(threadFiberData.previousFiber);
+		FiberPoolFunction::PushFreeFiber(scheduler->fiberPool, threadFiberData.previousFiber);
+		threadFiberData.previousFiber = nullptr;
+	}
+	else
+	{
+		WorkItemFunction::MainLoop(*fiberData->scheduler);
+	}
+
+	
 	FiberEntryPointFunction::_Shutdown();
 }
 
@@ -28,14 +47,17 @@ FiberEntryPointFunction::_Shutdown()
 	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
 	ThreadsData&	threadsData{ scheduler->threadsData };
 	FiberPool&	fiberPool{ scheduler->fiberPool };
-	ThreadFiberData&	threadFibersData{ scheduler->threadFibersData[threadIndex] };
+	ThreadFiberData&	threadFiberData{ scheduler->threadFibersData[threadIndex] };
 	Fiber&	threadFiber{ scheduler->threadsFibers[threadIndex] };
 	const bool	threadsShutdownState{ threadsData.threadsShutdownState[threadIndex] };
 
 	if (!threadsShutdownState)
 	{
 		//Pushing the old fiber if there is one, could contains another native thread fiber or a classic fiber
-		FiberFunction::PushPreviousFiber(fiberPool, threadFibersData);
+		assert(threadFiberData.previousFiber);
+		FiberPoolFunction::PushFreeFiber(fiberPool, threadFiberData.previousFiber);
+		threadFiberData.previousFiber = nullptr;
+
 		threadsData.threadsShutdownState[threadIndex] = true;
 		//Making sure everybody have free its old fiber
 		threadsData.threadsCountSignal.fetch_add(1, std::memory_order_release);
@@ -48,7 +70,7 @@ FiberEntryPointFunction::_Shutdown()
 	threadsData.threadsCountSignal.fetch_add(1, std::memory_order_release);
 	while (threadsData.threadsCountSignal.load(std::memory_order_acquire) != 0u);
 	//Switching to the thread original fiber
-	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, &threadFiber);
+	FiberFunction::SwitchToFiber(fiberPool, threadFiberData, &threadFiber);
 }
 
 }
