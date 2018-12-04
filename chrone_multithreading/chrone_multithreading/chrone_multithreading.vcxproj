@@ -119,6 +119,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Fence.h" />
+    <ClInclude Include="FenceHandle.h" />
+    <ClInclude Include="Handle.h" />
     <ClInclude Include="include\container\LockFreeLinkedList.h" />
     <ClInclude Include="include\scheduler\DummyTaskFunctor.h" />
     <ClInclude Include="include\scheduler\FiberFunction.h" />

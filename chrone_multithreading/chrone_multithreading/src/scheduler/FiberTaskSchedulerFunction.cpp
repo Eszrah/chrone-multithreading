@@ -120,13 +120,29 @@ FiberTaskSchedulerFunction::Shutdown(
 	return true;
 }
 
-void FiberTaskSchedulerFunction::_WaitAnddResetCounter(std::atomic<Uint>& counter, Uint count)
+
+bool 
+FiberTaskSchedulerFunction::AllocateFence(
+	Uint32 count, 
+	HFence* hFences)
+{
+	return false;
+}
+
+
+void 
+FiberTaskSchedulerFunction::_WaitAnddResetCounter(
+	std::atomic<Uint>& counter, 
+	Uint count)
 {
 	while (counter != count);
 	counter = 0u;
 }
 
-void FiberTaskSchedulerFunction::_JoinThreads(ThreadsData& threadsData)
+
+void 
+FiberTaskSchedulerFunction::_JoinThreads(
+	ThreadsData& threadsData)
 {
 	std::vector<std::thread*>&	threads{ threadsData.threads };
 
@@ -135,6 +151,7 @@ void FiberTaskSchedulerFunction::_JoinThreads(ThreadsData& threadsData)
 		thread->join();
 	}
 }
+
 
 void 
 FiberTaskSchedulerFunction::_Clear(
