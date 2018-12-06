@@ -69,13 +69,13 @@
     <ClInclude Include="include\scheduler\DummyTaskFunctor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Fence.h">
+    <ClInclude Include="include\scheduler\TaskBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Handle.h">
+    <ClInclude Include="include\scheduler\TaskPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FenceHandle.h">
+    <ClInclude Include="include\scheduler\TaskPoolFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -102,6 +102,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scheduler\WorkItemFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scheduler\TaskPoolFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

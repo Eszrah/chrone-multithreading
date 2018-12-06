@@ -7,6 +7,7 @@
 #include "ThreadFiberData.h"
 #include "FiberData.h"
 #include "Fence.h"
+#include "TaskPool.h"
 
 namespace chrone::multithreading::scheduler
 {
@@ -27,6 +28,9 @@ struct FiberTaskSchedulerData
 	ThreadsData	threadsData{};
 	std::vector<ThreadFiberData>	threadFibersData{};
 
+	Uint32	fenceMaxCount{};
+	Uint32	fenceCount{};
+	Spinlock	fenceLock{};
 	std::vector<Uint32>	freeFencesIndices{};
 	std::vector<Fence>	fibersData{};
 
@@ -34,6 +38,8 @@ struct FiberTaskSchedulerData
 	std::vector<Fiber>	fibers{};
 	std::vector<Fiber>	threadsFibers{};
 
+
+	TaskPool	taskPool;
 	FiberPool	fiberPool;
 };
 

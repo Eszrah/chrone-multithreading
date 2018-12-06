@@ -7,29 +7,11 @@ namespace std
 }
 
 #include "NativeType.h"
-#include "TaskDecl.h"
-#include "DummyTaskFunctor.h"
 
 namespace chrone::multithreading::scheduler
 {
 
 struct FiberData;
-struct Fiber;
-
-struct Task
-{
-	Task() = default;
-	Task(const Task&) = delete;
-	Task(Task&&) = default;
-	~Task() = default;
-
-	Task&	operator=(const Task&) = delete;
-	Task&	operator=(Task&&) = default;
-
-	TaskDecl	decl{ DummyTaskFunctor, nullptr };
-	std::atomic<Fiber*>*	dependencyFiber{ nullptr };
-	std::atomic<int>*	dependencyCoouter{ nullptr };
-};
 
 struct Fiber
 {
@@ -40,8 +22,7 @@ struct Fiber
 
 	Fiber(void*	fiberHandle, FiberData* fiberData):
 		fiberData{ fiberData },
-		fiberHandle{ fiberHandle },
-		task{}
+		fiberHandle{ fiberHandle }
 	{}
 
 	Fiber&	operator=(const Fiber&) = delete;
@@ -49,7 +30,6 @@ struct Fiber
 
 	FiberData*	fiberData{ nullptr };
 	void*	fiberHandle{ nullptr };
-	Task	task{};
 };
 
 }

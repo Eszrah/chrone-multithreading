@@ -1,11 +1,15 @@
 #include "scheduler/FiberTaskSchedulerFunction.h"
+
+#include <algorithm>
+#include <stdlib.h>
+
 #include "scheduler/FiberTaskSchedulerData.h"
 #include "scheduler/FiberPoolFunction.h"
 #include "scheduler/WindowsFiberHelper.h"
 #include "scheduler/WorkerThreadEntryPoint.h"
 #include "scheduler/WorkerFiberEntryPoint.h"
 
-#include <algorithm>
+#include "std_extension/SpinlockStdExt.h"
 
 namespace chrone::multithreading::scheduler
 {
@@ -31,6 +35,7 @@ FiberTaskSchedulerFunction::Initialize(
 	std::vector<std::thread*>&	threads{ threadsData.threads };
 	FiberPool&	fiberPool{ scheduler.fiberPool };
 
+	scheduler.fenceMaxCount = 0u;
 
 	threadsData.threadsKeepRunning = true;
 	threadsData.threadsBarrier = true;
@@ -120,14 +125,6 @@ FiberTaskSchedulerFunction::Shutdown(
 	return true;
 }
 
-
-bool 
-FiberTaskSchedulerFunction::AllocateFence(
-	Uint32 count, 
-	HFence* hFences)
-{
-	return false;
-}
 
 
 void 

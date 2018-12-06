@@ -27,7 +27,12 @@ WorkItemFunction::MainLoop(
 
 	while (threadsKeepRunning.load(std::memory_order_acquire))
 	{
+		//Try to find a task to execute
+
+
 		Task&	currentTask{ threadFiberData.currentFiber->task };
+
+
 
 		bool const	isTerminalFiber{ 
 			FiberFunction::ExecuteFiberTask(currentTask) };

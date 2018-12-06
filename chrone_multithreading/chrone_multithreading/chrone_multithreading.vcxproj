@@ -119,9 +119,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Fence.h" />
-    <ClInclude Include="FenceHandle.h" />
-    <ClInclude Include="Handle.h" />
     <ClInclude Include="include\container\LockFreeLinkedList.h" />
     <ClInclude Include="include\scheduler\DummyTaskFunctor.h" />
     <ClInclude Include="include\scheduler\FiberFunction.h" />
@@ -129,6 +126,9 @@
     <ClInclude Include="include\scheduler\FiberTaskSchedulerFunction.h" />
     <ClInclude Include="include\NativeType.h" />
     <ClInclude Include="include\scheduler\FiberData.h" />
+    <ClInclude Include="include\scheduler\TaskBuffer.h" />
+    <ClInclude Include="include\scheduler\TaskPool.h" />
+    <ClInclude Include="include\scheduler\TaskPoolFunction.h" />
     <ClInclude Include="include\scheduler\ThreadFiberData.h" />
     <ClInclude Include="include\scheduler\Fiber.h" />
     <ClInclude Include="include\scheduler\FiberPool.h" />
@@ -145,6 +145,7 @@
     <ClCompile Include="src\scheduler\FIberFunction.cpp" />
     <ClCompile Include="src\scheduler\FiberPoolFunction.cpp" />
     <ClCompile Include="src\scheduler\FiberTaskSchedulerFunction.cpp" />
+    <ClCompile Include="src\scheduler\TaskPoolFunction.cpp" />
     <ClCompile Include="src\scheduler\WindowsFiberHelper.cpp" />
     <ClCompile Include="src\scheduler\WorkerFiberEntryPoint.cpp" />
     <ClCompile Include="src\scheduler\WorkItemFunction.cpp" />
