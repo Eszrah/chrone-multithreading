@@ -25,9 +25,7 @@ struct FiberTaskSchedulerFunction
 	static bool	Shutdown(FiberTaskSchedulerData& scheduler);
 
 	//static bool AllocateFence(FiberTaskSchedulerData& scheduler, Uint32 count, HFence* hFences);
-	//static bool	PushTasks(Uint32 count, const TaskDecl* tasksDecl, );
-
-	static bool	TryPopTask(TaskDecl& task);
+	static bool	PushTasks(Uint32 count, const TaskDecl* tasksDecl, HFence fence);
 
 	static void	_WaitAnddResetCounter(std::atomic<Uint>& counter, Uint count);
 	static void _JoinThreads(ThreadsData& threadsData);

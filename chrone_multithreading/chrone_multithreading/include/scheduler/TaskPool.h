@@ -4,7 +4,7 @@
 
 #include "NativeType.h"
 #include "Spinlock.h"
-#include "TaskBuffer.h"
+#include "Task.h"
 
 namespace chrone::multithreading::scheduler
 {
@@ -12,7 +12,7 @@ namespace chrone::multithreading::scheduler
 struct TaskPool
 {
 	Spinlock	taskBuffersLock{};
-	std::vector<TaskBuffer>	taskBuffers;
+	std::vector<Task>	taskBuffer;
 };
 
 }

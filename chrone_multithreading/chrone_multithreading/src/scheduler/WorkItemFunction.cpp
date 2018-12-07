@@ -4,6 +4,7 @@
 
 #include "scheduler/FiberTaskSchedulerData.h"
 #include "scheduler/FiberPoolFunction.h"
+#include "scheduler/TaskPoolFunction.h"
 #include "scheduler/FiberFunction.h"
 #include "scheduler/Fiber.h"
 
@@ -21,16 +22,20 @@ WorkItemFunction::MainLoop(
 		scheduler.threadFibersData };
 
 	FiberPool&	fiberPool{ scheduler.fiberPool };
+	TaskPool&	taskPool{ scheduler.taskPool };
 
 	Uint8	threadIndex{ FiberFunction::GetFiberData()->threadIndex };
 	ThreadFiberData&	threadFiberData{ threadFibersData[threadIndex] };
 
+	Task	currentTask{};
+
 	while (threadsKeepRunning.load(std::memory_order_acquire))
 	{
-		//Try to find a task to execute
-
-
-		Task&	currentTask{ threadFiberData.currentFiber->task };
+		if (!TaskPoolFunction::TryGetTask(taskPool, currentTask))
+		{
+			//Wait ???
+			continue;
+		}
 
 
 

@@ -127,7 +127,18 @@ FiberTaskSchedulerFunction::Shutdown(
 
 
 
-void 
+bool 
+FiberTaskSchedulerFunction::PushTasks(
+	Uint32 count, 
+	const TaskDecl* tasksDecl, 
+	HFence fence)
+
+{
+
+	return false;
+}
+
+void
 FiberTaskSchedulerFunction::_WaitAnddResetCounter(
 	std::atomic<Uint>& counter, 
 	Uint count)
