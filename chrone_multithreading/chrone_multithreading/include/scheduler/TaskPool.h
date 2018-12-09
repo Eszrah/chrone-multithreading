@@ -9,10 +9,23 @@
 namespace chrone::multithreading::scheduler
 {
 
+struct TaskNode 
+{
+	Task	task{};
+	TaskNode*	next{ nullptr };
+};
+
+struct TaskNodeList 
+{
+	TaskNode*	begin{ nullptr };
+	TaskNode*	end{ nullptr };
+};
+
 struct TaskPool
 {
 	Spinlock	taskBuffersLock{};
-	std::vector<Task>	taskBuffer;
+	TaskNodeList	tasks{};
+	/*std::vector<Task>	taskBuffer;*/
 };
 
 }

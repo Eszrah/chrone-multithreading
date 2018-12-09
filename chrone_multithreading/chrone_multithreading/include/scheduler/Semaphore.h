@@ -1,15 +1,14 @@
 #pragma once
 
 #include "NativeType.h"
+#include <atomic>
 
 namespace chrone::multithreading::scheduler
 {
 
-template<class T>
-struct Handle32
+struct Semaphore
 {
-	Uint32	value;
+	std::atomic<Uint>	dependantCounter{};
 };
-
 
 }

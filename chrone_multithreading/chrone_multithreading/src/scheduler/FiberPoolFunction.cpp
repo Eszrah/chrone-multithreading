@@ -1,4 +1,7 @@
 #include "scheduler/FiberPoolFunction.h"
+
+#include <cassert>
+
 #include "scheduler/FiberPool.h"
 #include "std_extension/SpinlockStdExt.h"
 
@@ -33,6 +36,7 @@ FiberPoolFunction::PushFreeFiber(
 	pool.freeFibers.push_back(fiber);
 }
 
+
 void 
 FiberPoolFunction::PushFreeFibers_NotConcurrent(
 	FiberPool& pool, 
@@ -52,23 +56,16 @@ FiberPoolFunction::PushFreeFibers_NotConcurrent(
 }
 
 
-bool 
-FiberPoolFunction::TryPopReadyFiber(
-	FiberPool& pool, 
-	Fiber*& fiber)
+Fiber* 
+FiberPoolFunction::PopFreeFiber(
+	FiberPool& pool)
 {
-	LockGuardSpinLock	lock{ pool.readyFibersLock };
-	std::vector<Fiber*>&	readyFibers{ pool.readyFibers };
+	std::vector<Fiber*>&	freeFibers{ pool.freeFibers };
+	assert(!freeFibers.empty());
+	Fiber*	fiber{ freeFibers.back() };
 
-	if (readyFibers.empty())
-	{
-		return false;
-	}
-
-	fiber = readyFibers.back();
-	readyFibers.pop_back();
-
-	return true;
+	freeFibers.pop_back();
+	return fiber;
 }
 
 }

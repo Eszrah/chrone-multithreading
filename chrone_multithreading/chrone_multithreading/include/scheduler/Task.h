@@ -21,7 +21,6 @@ struct TaskDependency
 	std::atomic<Uint>*	dependentCounter{ nullptr };
 	Fiber*	dependentFiber{ nullptr };
 	std::condition_variable*	fence{ nullptr };
-	
 };
 
 struct Task
