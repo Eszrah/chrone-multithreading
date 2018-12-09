@@ -28,16 +28,14 @@ struct FiberTaskSchedulerData
 	ThreadsData	threadsData{};
 	std::vector<ThreadFiberData>	threadFibersData{};
 
-	Uint32	fenceMaxCount{};
-	Uint32	fenceCount{};
 	Spinlock	fenceLock{};
+	Uint32	fenceMaxCount{};
 	std::vector<Uint32>	freeFencesIndices{};
-	std::vector<Fence>	fibersData{};
+	std::vector<Fence>	fences{};
 
 	std::vector<FiberData>	fibersData{};
 	std::vector<Fiber>	fibers{};
 	std::vector<Fiber>	threadsFibers{};
-
 
 	TaskPool	taskPool;
 	FiberPool	fiberPool;

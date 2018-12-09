@@ -10,7 +10,9 @@ namespace chrone::multithreading::scheduler
 	TaskPoolFunction::Initialize(
 			TaskPool& pool)
 	{
-		return false;
+		pool.tasks.begin = nullptr;
+		pool.tasks.end = nullptr;
+		return true;
 	}
 
 
@@ -18,47 +20,62 @@ namespace chrone::multithreading::scheduler
 	TaskPoolFunction::Shutdown(
 		TaskPool& pool)
 	{
-		return false;
+		pool.tasks.begin = nullptr;
+		pool.tasks.end = nullptr;
+		return true;
 	}
-
-
 
 	
 	bool 
 	TaskPoolFunction::PushTasks(
 		TaskPool& pool,
 		Uint32 count,
-		const TaskDecl* tasksDecl, 
+		TaskNodeList pushedTaskList,
 		TaskDependency dependency)
 	{
 		Spinlock&	spinLock{ pool.taskBuffersLock };
-		std::vector<Task>&	taskBuffer{ pool.taskBuffer };
+		TaskNodeList&	tasks{ pool.tasks };
 
-		for (Uint32 index{ 0u }; index < count; ++index)
+		pushedTaskList.end->next = nullptr;
+
+		if (tasks.end)
 		{
-			LockGuardSpinLock	lock{ pool.taskBuffersLock };
-			taskBuffer.emplace_back(tasksDecl[index], dependency);
+			tasks.end->next = pushedTaskList.begin;
 		}
-
+		else
+		{
+			tasks.begin = pushedTaskList.begin;
+			tasks.end = pushedTaskList.begin;
+		}
+		
 		return true;
 	}
 
 	bool
-	TaskPoolFunction::TryGetTask(
+	TaskPoolFunction::TryPopTask(
 		TaskPool& pool, 
 		Task& task)
 	{
 		LockGuardSpinLock	lock{ pool.taskBuffersLock };
-		std::vector<Task>&	taskBuffer{ pool.taskBuffer };
+		TaskNodeList&	tasks{ pool.tasks };
+		TaskNode*	tasksBegin{ tasks.begin };
+		TaskNode*	tasksEnd{ tasks.end };
 
-		if (taskBuffer.empty())
+		if (!tasksBegin)
 		{
 			return false;
 		}
 
-		task = std::move(taskBuffer.back());
+		task = std::move(tasksBegin->task);
+		tasksBegin = tasksBegin->next;
+		
+		if (!tasksBegin)
+		{
+			tasksEnd = nullptr;
+		}
 
-		taskBuffer.pop_back();
+		tasks.begin = tasksBegin;
+		tasks.end = tasksEnd;
 
 		return true;
 	}

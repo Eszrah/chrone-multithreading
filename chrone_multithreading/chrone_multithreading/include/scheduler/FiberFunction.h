@@ -14,7 +14,6 @@ struct FiberFunction
 	static FiberData*	GetFiberData();
 	static void	SwitchToFiber(FiberPool& fiberPool, ThreadFiberData& threadFiberData, Fiber* newFiber);
 
-	static bool ExecuteFiberTask(Task& task);
 };
 
 }

@@ -38,25 +38,4 @@ FiberFunction::SwitchToFiber(
 	WindowsFiberHelper::SwitchToFiber(newFiber->fiberHandle);
 }
 
-
-bool
-FiberFunction::ExecuteFiberTask(
-	Task& task)
-{
-	TaskDecl&	taskDecl{ task.decl };
-
-	taskDecl.functor(taskDecl.data);
-
-	if (task.dependencyCoouter)
-	{
-		auto const	lastDependencyCount{ task.dependencyCoouter->fetch_sub(
-			1u, std::memory_order_release) };
-
-		return task.dependencyFiber && task.dependencyFiber->load(
-			std::memory_order_relaxed) && (1u == lastDependencyCount);
-	}
-
-	return false;
-}
-
 }
