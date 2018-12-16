@@ -119,6 +119,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\AssertMacro.h" />
     <ClInclude Include="include\scheduler\DummyTaskFunctor.h" />
     <ClInclude Include="include\scheduler\Fence.h" />
     <ClInclude Include="include\scheduler\FiberFunction.h" />

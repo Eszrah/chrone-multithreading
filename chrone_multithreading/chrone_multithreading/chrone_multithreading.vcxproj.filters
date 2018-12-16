@@ -111,6 +111,9 @@
     <ClInclude Include="include\scheduler\HSemaphore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\AssertMacro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source.cpp">
