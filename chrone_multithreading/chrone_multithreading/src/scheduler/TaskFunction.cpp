@@ -17,20 +17,17 @@ TaskFunction::ExecuteTask(
 
 	decl.functor(decl.data);
 
-	if (dependency.dependentCounter)
+	auto const	lastDependencyCount{ dependency.dependentCounter->fetch_sub(
+		1u, std::memory_order_release) };
+
+	if (1u == lastDependencyCount)
 	{
-		auto const	lastDependencyCount{ dependency.dependentCounter->fetch_sub(
-			1u, std::memory_order_release) };
-
-		if (1u == lastDependencyCount)
+		if (dependency.fence)
 		{
-			if (dependency.fence)
-			{
-				dependency.fence->notify_one();
-			}
-
-			return dependency.dependentFiber;
+			dependency.fence->notify_one();
 		}
+		 
+		return dependency.dependentFiber->load(std::memory_order_relaxed);
 	}
 
 	return nullptr;

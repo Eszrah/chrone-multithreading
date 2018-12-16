@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include "scheduler/FiberPool.h"
+
 #include "std_extension/SpinlockStdExt.h"
 
 namespace chrone::multithreading::scheduler

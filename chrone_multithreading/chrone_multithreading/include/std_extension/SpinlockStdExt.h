@@ -174,7 +174,7 @@ private:
 
 }
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading
 {
 	using LockGuardSpinLock = std::lock_guard<Spinlock>;
 }

@@ -2,29 +2,27 @@
 
 #include "NativeType.h"
 #include "TaskDecl.h"
+#include "TaskDependency.h"
 
-namespace std
-{
-	template<class T>
-	struct atomic;
-
-	class condition_variable;
-}
 
 namespace chrone::multithreading::scheduler
 {
 
-struct Fiber;
-
-struct TaskDependency 
-{
-	std::atomic<Uint>*	dependentCounter{ nullptr };
-	Fiber*	dependentFiber{ nullptr };
-	std::condition_variable*	fence{ nullptr };
-};
-
 struct Task
 {
+	Task() = default;
+	Task(const Task&) = delete;
+	Task(Task&&) = default;
+	~Task() = default;
+
+	Task(TaskDecl decl, TaskDependency dependency) :
+		decl{ decl },
+		dependency{ dependency }
+	{}
+
+	Task&	operator=(const Task&) = delete;
+	Task&	operator=(Task&&) = default;
+
 	TaskDecl	decl;
 	TaskDependency	dependency;
 };

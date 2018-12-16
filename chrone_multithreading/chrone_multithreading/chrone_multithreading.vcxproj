@@ -119,7 +119,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\container\LockFreeLinkedList.h" />
     <ClInclude Include="include\scheduler\DummyTaskFunctor.h" />
     <ClInclude Include="include\scheduler\Fence.h" />
     <ClInclude Include="include\scheduler\FiberFunction.h" />
@@ -127,11 +126,17 @@
     <ClInclude Include="include\scheduler\FiberTaskSchedulerFunction.h" />
     <ClInclude Include="include\NativeType.h" />
     <ClInclude Include="include\scheduler\FiberData.h" />
+    <ClInclude Include="include\scheduler\FiberTaskSchedulerExternalFunction.h" />
+    <ClInclude Include="include\scheduler\FiberTaskSchedulerInternalFunction.h" />
+    <ClInclude Include="include\scheduler\HFence.h" />
+    <ClInclude Include="include\scheduler\HSemaphore.h" />
     <ClInclude Include="include\scheduler\Semaphore.h" />
     <ClInclude Include="include\scheduler\Task.h" />
     <ClInclude Include="include\scheduler\TaskBuffer.h" />
     <ClInclude Include="include\scheduler\TaskBufferFunction.h" />
+    <ClInclude Include="include\scheduler\TaskDependency.h" />
     <ClInclude Include="include\scheduler\TaskFunction.h" />
+    <ClInclude Include="include\scheduler\TaskNodeList.h" />
     <ClInclude Include="include\scheduler\TaskPool.h" />
     <ClInclude Include="include\scheduler\TaskPoolFunction.h" />
     <ClInclude Include="include\scheduler\ThreadContextData.h" />
@@ -146,12 +151,13 @@
     <ClInclude Include="include\scheduler\WorkerThreadEntryPoint.h" />
     <ClInclude Include="include\Spinlock.h" />
     <ClInclude Include="include\std_extension\SpinlockStdExt.h" />
-    <ClInclude Include="include\scheduler\TaskBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scheduler\FIberFunction.cpp" />
     <ClCompile Include="src\scheduler\FiberPoolFunction.cpp" />
+    <ClCompile Include="src\scheduler\FiberTaskSchedulerExternalFunction.cpp" />
     <ClCompile Include="src\scheduler\FiberTaskSchedulerFunction.cpp" />
+    <ClCompile Include="src\scheduler\FiberTaskSchedulerInternalFunction.cpp" />
     <ClCompile Include="src\scheduler\TaskBufferFunction.cpp" />
     <ClCompile Include="src\scheduler\TaskFunction.cpp" />
     <ClCompile Include="src\scheduler\TaskPoolFunction.cpp" />

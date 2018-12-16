@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\container\LockFreeLinkedList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\std_extension\SpinlockStdExt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -96,7 +93,22 @@
     <ClInclude Include="include\scheduler\TaskBufferFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\scheduler\TaskBuffer.h">
+    <ClInclude Include="include\scheduler\TaskNodeList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scheduler\TaskDependency.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scheduler\FiberTaskSchedulerExternalFunction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scheduler\FiberTaskSchedulerInternalFunction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scheduler\HFence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scheduler\HSemaphore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -132,6 +144,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scheduler\TaskBufferFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scheduler\FiberTaskSchedulerExternalFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scheduler\FiberTaskSchedulerInternalFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

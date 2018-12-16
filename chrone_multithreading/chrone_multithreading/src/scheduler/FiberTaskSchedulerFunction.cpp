@@ -10,9 +10,12 @@
 #include "scheduler/WindowsFiberHelper.h"
 #include "scheduler/WorkerThreadEntryPoint.h"
 #include "scheduler/WorkerFiberEntryPoint.h"
+#include "scheduler/TaskBuffer.h"
 #include "scheduler/Fence.h"
+#include "scheduler/Semaphore.h"
 
 #include "std_extension/SpinlockStdExt.h"
+#include "AssertMacro.h"
 
 namespace chrone::multithreading::scheduler
 {
@@ -22,10 +25,14 @@ FiberTaskSchedulerFunction::Initialize(
 	FiberTaskSchedulerData& scheduler,
 	const Uint32 threadCount, 
 	const Uint32 fiberCount,
-	const Uint32 fenceMaxCount)
+	const Uint32 maxTaskCountPowerOfTwo,
+	const Uint32 fenceMaxCount,
+	const Uint32 semaphroeMaxCount)
 {
 	if (!threadCount ||
-		!fiberCount || fiberCount < threadCount)
+		!fiberCount || fiberCount < threadCount ||
+		!(maxTaskCountPowerOfTwo && 
+			((maxTaskCountPowerOfTwo & (maxTaskCountPowerOfTwo - 1u)) == 0u)))
 	{
 		return false;
 	}
@@ -48,23 +55,42 @@ FiberTaskSchedulerFunction::Initialize(
 	threadsData.threadsShutdownState.resize(threadCount, false);
 
 	scheduler.fenceMaxCount = fenceMaxCount;
-	scheduler.fences.resize(fenceMaxCount);
+	scheduler.fences = new Fence[fenceMaxCount];
 	scheduler.freeFencesIndices.resize(fenceMaxCount);
 	std::iota(scheduler.freeFencesIndices.begin(), 
 		scheduler.freeFencesIndices.end(), 0);
 
+
+	scheduler.semaphoreMaxCount = semaphroeMaxCount;
+	scheduler.semaphores = new Semaphore[semaphroeMaxCount];
+	scheduler.freeSemaphoresIndices.resize(semaphroeMaxCount);
+	std::iota(scheduler.freeSemaphoresIndices.begin(),
+		scheduler.freeSemaphoresIndices.end(), 0);
 
 	threads.resize(threadCount);
 	threadsFibers.resize(threadCount);
 	threadFibersData.resize(threadCount);
 	fibersData.reserve(threadCount + fiberCount);
 	fibers.reserve(fiberCount);
+
+	TaskPoolFunction::Initialize(scheduler.taskPool, maxTaskCountPowerOfTwo);
+
+
+	Fiber*	threadsFiber{ threadsFibers.data() };
+	Fiber*	fiber{ fibers.data() };
 	
 	FiberPoolFunction::Reserve(fiberPool, fiberCount);
 
-	for (Uint index{ 0u }; index < threadCount + fiberCount; ++index)
+	for (Uint index{ 0 }; index < threadCount; ++index)
 	{
-		fibersData.emplace_back(0xFFFFFFFF, &scheduler);
+		fibersData.emplace_back(0xFFFFFFFF, threadsFiber, &scheduler);
+		++threadsFiber;
+	}
+
+	for (Uint index{ 0 }; index < fiberCount; ++index)
+	{
+		fibersData.emplace_back(0xFFFFFFFF, fiber, &scheduler);
+		++fiber;
 	}
 
 	for (Uint index{ 0u }, fiberDataIndex{ threadCount }; index < fiberCount; ++index, ++fiberDataIndex)
@@ -124,7 +150,7 @@ FiberTaskSchedulerFunction::Shutdown(
 	threadsData.threadsCountSignal.store(0u, std::memory_order_release);
 	threadsData.threadsKeepRunning.store(false, std::memory_order_release);
 	//Wait all threads have pushed their old fiber and reached the _threadsBarrier
-	_WaitAnddResetCounter(threadsData.threadsCountSignal, threadCount);
+	_WaitAnddResetCounter(threadsData.threadsCountSignal, static_cast<Uint>(threadCount));
 	threadsData.threadsBarrier.store(false, std::memory_order_release);
 	auto const threadCountTwice{ threadCount * 2u };
 	while (threadsData.threadsCountSignal != threadCountTwice);
@@ -136,60 +162,37 @@ FiberTaskSchedulerFunction::Shutdown(
 	return true;
 }
 
-
-HFence 
+HFence
 FiberTaskSchedulerFunction::AllocateFence(
 	FiberTaskSchedulerData& scheduler)
 {
-	return _AllocateFence(scheduler);
+	return HFence{ _AllocateFence(scheduler) };
+}
+
+
+void
+FiberTaskSchedulerFunction::FreeFence(
+	FiberTaskSchedulerData& scheduler,
+	HFence& fence)
+{
+	_FreeFence(scheduler, static_cast<Fence*>(fence.data));
+}
+
+
+HSemaphore 
+FiberTaskSchedulerFunction::AllocateSemaphore(
+	FiberTaskSchedulerData& scheduler)
+{
+	return HSemaphore{ _AllocateSemaphore(scheduler) };
 }
 
 
 void 
-FiberTaskSchedulerFunction::FreeFence(
+FiberTaskSchedulerFunction::FreeSemaphre(
 	FiberTaskSchedulerData& scheduler, 
-	HFence& fence)
+	HSemaphore& semaphore)
 {
-	_FreeFence(scheduler, static_cast<Fence*>(fence));
-}
-
-
-bool
-FiberTaskSchedulerFunction::PushTasks(
-	FiberTaskSchedulerData& scheduler,
-	Uint32 count, 
-	const TaskDecl* tasksDecl, 
-	HFence hFence)
-{
-	TaskDependency	dependency{};
-	Fence*	fence{ static_cast<Fence*>(hFence) };
-
-	if (fence)
-	{
-		dependency.dependentCounter = &fence->dependantCounter;
-		dependency.fence = &fence->conditionVariable;
-		dependency.dependentFiber = nullptr;
-	}
-	
-	TaskPoolFunction::PushTasks(
-		scheduler.taskPool, count, tasksDecl, dependency);
-
-	hFence = fence;
-	return true;
-}
-
-
-bool 
-FiberTaskSchedulerFunction::WaitFence(
-	FiberTaskSchedulerData& scheduler,
-	HFence& hFence)
-{
-	Fence*	fence{ static_cast<Fence*>(hFence) };
-	std::unique_lock	lock{ fence->mutex };
-
-	fence->conditionVariable.wait(lock);
-
-	return true;
+	_FreeSemaphore(scheduler, static_cast<Semaphore*>(semaphore.data));
 }
 
 
@@ -197,31 +200,63 @@ Fence*
 FiberTaskSchedulerFunction::_AllocateFence(
 	FiberTaskSchedulerData& scheduler)
 {
+	Fence*		fences{ scheduler.fences };
+
 	LockGuardSpinLock	lock{ scheduler.fenceLock };
-	std::vector<Uint32>&	freeFencesIndices{ scheduler.freeFencesIndices };
-	std::vector<Fence>&		fences{ scheduler.fences };
+	std::vector<Uint>&	freeFencesIndices{ scheduler.freeFencesIndices };
 
-	Uint32	fenceIndex{ 0xFFFFFFFF };
-	const Uint32	freeFenceIndiceCount{ freeFencesIndices.size() };
+	const size_t	freeFenceIndiceCount{ freeFencesIndices.size() };
 
-	fenceIndex = freeFencesIndices.back();
+	size_t	fenceIndex{ freeFencesIndices.back() };
 	freeFencesIndices.pop_back();
 
 	return &fences[fenceIndex];
 }
 
 
-void 
+void
 FiberTaskSchedulerFunction::_FreeFence(
-	FiberTaskSchedulerData& scheduler, 
+	FiberTaskSchedulerData& scheduler,
 	Fence* fence)
 {
+	Fence*		fences{ scheduler.fences };
 	LockGuardSpinLock	lock{ scheduler.fenceLock };
 	std::vector<Uint32>&	freeFencesIndices{ scheduler.freeFencesIndices };
-	std::vector<Fence>&		fences{ scheduler.fences };
 
-	Uint32	fenceIndex{ fence - fences.data() };
+	const Uint32	fenceIndex{ static_cast<Uint32>(fence - fences) };
 	freeFencesIndices.push_back(fenceIndex);
+}
+
+
+Semaphore* 
+FiberTaskSchedulerFunction::_AllocateSemaphore(
+	FiberTaskSchedulerData& scheduler)
+{
+	Semaphore*		semaphores{ scheduler.semaphores };
+
+	LockGuardSpinLock	lock{ scheduler.semaphoreLock };
+	std::vector<Uint>&	freeSemaphoresIndices{ scheduler.freeSemaphoresIndices };
+
+	const size_t	freeSemaphoresIndiceCount{ freeSemaphoresIndices.size() };
+	const Uint32	semaphoreIndex{ freeSemaphoresIndices.back() };
+
+	freeSemaphoresIndices.pop_back();
+
+	return &semaphores[semaphoreIndex];
+}
+
+
+void 
+FiberTaskSchedulerFunction::_FreeSemaphore(
+	FiberTaskSchedulerData& scheduler, 
+	Semaphore* semaphore)
+{
+	Semaphore*		semaphores{ scheduler.semaphores };
+	LockGuardSpinLock	lock{ scheduler.semaphoreLock };
+	std::vector<Uint32>&	freeSemaphoresIndices{ scheduler.freeSemaphoresIndices };
+
+	const Uint32	semaphoreIndex{ static_cast<Uint32>(semaphore - semaphores) };
+	freeSemaphoresIndices.push_back(semaphoreIndex);
 }
 
 
@@ -274,10 +309,16 @@ FiberTaskSchedulerFunction::_Clear(
 
 	scheduler.fenceMaxCount = 0u;
 	scheduler.freeFencesIndices.clear();
-	scheduler.fences.clear();
+	delete[] scheduler.fences;
+	scheduler.fences = nullptr;
+
+	scheduler.semaphoreMaxCount = 0u;
+	scheduler.freeSemaphoresIndices.clear();
+	delete[] scheduler.semaphores;
+	scheduler.semaphores = nullptr;
 
 	FiberPoolFunction::Clear(scheduler.fiberPool);
-	TaskPoolFunction::Shutdown(scheduler.taskPool);
+	TaskPoolFunction::Clear(scheduler.taskPool);
 }
 
 

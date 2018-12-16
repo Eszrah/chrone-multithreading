@@ -8,7 +8,7 @@ namespace chrone::multithreading::scheduler
 struct TaskDecl 
 {
 	TaskDecl() = default;
-	TaskDecl(const TaskDecl&) = delete;
+	TaskDecl(const TaskDecl&) = default;
 	inline TaskDecl(TaskDecl&& other) = default;
 	~TaskDecl() = default;
 
@@ -17,7 +17,7 @@ struct TaskDecl
 		data{ data }
 	{}
 
-	TaskDecl&	operator=(const TaskDecl&) = delete;
+	TaskDecl&	operator=(const TaskDecl&) = default;
 	inline TaskDecl&	operator=(TaskDecl&& other) = default;
 
 	TaskDeclFunc	functor{ nullptr };

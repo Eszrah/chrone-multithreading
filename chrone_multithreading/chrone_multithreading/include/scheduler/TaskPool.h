@@ -4,28 +4,19 @@
 
 #include "NativeType.h"
 #include "Spinlock.h"
-#include "Task.h"
+#include "TaskNodeList.h"
 
 namespace chrone::multithreading::scheduler
 {
 
-struct TaskNode 
-{
-	Task	task{};
-	TaskNode*	next{ nullptr };
-};
-
-struct TaskNodeList 
-{
-	TaskNode*	begin{ nullptr };
-	TaskNode*	end{ nullptr };
-};
-
 struct TaskPool
 {
 	Spinlock	taskBuffersLock{};
-	TaskNodeList	tasks{};
-	/*std::vector<Task>	taskBuffer;*/
+
+	Uint32	headIndex{ 0u };
+	Uint32	tailIndex{ 0u };
+	Uint32	tasksMaxCount{ 0u };
+	Task*	tasks{ nullptr };
 };
 
 }

@@ -13,7 +13,7 @@ int main()
 	const Uint	threadCount = 8;
 	const Uint	fiberCount = 8;
 
-	FiberTaskSchedulerFunction::Initialize(scheduler, threadCount, fiberCount);
+//	FiberTaskSchedulerFunction::Initialize(scheduler, threadCount, fiberCount);
 
 	while (true)
 	{
