@@ -1,11 +1,13 @@
 #pragma once
 
+#include "NativeType.h"
+
 namespace chrone::multithreading::scheduler
 {
 
 struct HFence 
 {
-	void*	data{ nullptr };
+	Uint16	handle{};
 };
 
 }

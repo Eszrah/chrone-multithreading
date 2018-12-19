@@ -1,7 +1,11 @@
 #pragma once
 
-#include "NativeType.h"
 #include <atomic>
+#include <mutex>
+
+#include "NativeType.h"
+#include "HSemaphore.h"
+
 
 namespace chrone::multithreading::scheduler
 {
@@ -20,6 +24,23 @@ struct Semaphore
 
 	std::atomic<Uint>	dependentCounter{};
 	std::atomic<Fiber*>	dependentFiber{};
+};
+
+
+struct Fence
+{
+	Fence() = default;
+	Fence(const Fence&) = delete;
+	Fence(Fence&&) = default;
+	~Fence() = default;
+
+	Fence&	operator=(const Fence&) = delete;
+	Fence&	operator=(Fence&&) = default;
+
+
+	std::mutex	mutex{};
+	std::condition_variable	conditionVariable{};
+	HSemaphore	hSemaphore{};
 };
 
 }

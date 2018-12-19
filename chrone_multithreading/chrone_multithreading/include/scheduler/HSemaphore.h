@@ -1,11 +1,13 @@
 #pragma once
 
+#include "NativeType.h"
+
 namespace chrone::multithreading::scheduler
 {
 
 struct HSemaphore
 {
-	void*	data{ nullptr };
+	Uint32	handle{};
 };
 
 }

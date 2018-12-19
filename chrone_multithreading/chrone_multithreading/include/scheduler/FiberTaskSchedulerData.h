@@ -6,12 +6,14 @@
 #include "FiberPool.h"
 #include "ThreadFiberData.h"
 #include "FiberData.h"
-#include "Fence.h"
-#include "Semaphore.h"
 #include "TaskPool.h"
+#include "HSemaphore.h"
 
 namespace chrone::multithreading::scheduler
 {
+
+struct Fence;
+struct Semaphore;
 
 struct ThreadsData
 {
@@ -26,19 +28,22 @@ struct ThreadsData
 
 struct FiberTaskSchedulerData
 {
+	constexpr static Uint	defaultHSyncPrimitive{ 0u };
+
 	ThreadsData	threadsData{};
 	std::vector<ThreadFiberData>	threadFibersData{};
 
 	Spinlock	fenceLock{};
-	Uint32	fenceMaxCount{};
-	std::vector<Uint32>	freeFencesIndices{};
+	Uint16	fenceMaxCount{};
+	std::vector<Uint16>	freeFencesIndices{};
 	Fence*	fences{};
 
 	Spinlock	semaphoreLock{};
 	Uint32	semaphoreMaxCount{};
+	Uint16	allocatedNativeSemaphore{};
 	std::vector<Uint32>	freeSemaphoresIndices{};
 	Semaphore*	semaphores{};
-
+	 
 	std::vector<FiberData>	fibersData{};
 	std::vector<Fiber>	fibers{};
 	std::vector<Fiber>	threadsFibers{};

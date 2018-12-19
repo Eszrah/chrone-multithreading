@@ -1,13 +1,11 @@
 #include "scheduler/TaskBufferFunction.h"
 
 #include "scheduler/TaskBuffer.h"
-#include "scheduler/Fence.h"
-#include "scheduler/Semaphore.h"
+#include "scheduler/SyncPrimitive.h"
+
 
 namespace chrone::multithreading::scheduler
 {
-
-
 
 void 
 TaskBufferFunction::AllocateTasks(

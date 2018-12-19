@@ -75,28 +75,13 @@
     <ClInclude Include="include\scheduler\TaskPoolFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\scheduler\TaskFunction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\scheduler\Task.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\scheduler\Fence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\scheduler\Semaphore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\scheduler\ThreadContextData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\scheduler\TaskBufferFunction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\scheduler\TaskNodeList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\scheduler\TaskDependency.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\scheduler\FiberTaskSchedulerExternalFunction.h">
@@ -112,6 +97,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\AssertMacro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scheduler\SyncPrimitive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -141,9 +129,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scheduler\TaskPoolFunction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\scheduler\TaskFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scheduler\TaskBufferFunction.cpp">

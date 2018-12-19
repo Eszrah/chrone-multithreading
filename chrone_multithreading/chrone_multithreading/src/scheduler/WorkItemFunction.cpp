@@ -5,9 +5,10 @@
 #include "scheduler/FiberTaskSchedulerData.h"
 #include "scheduler/FiberPoolFunction.h"
 #include "scheduler/TaskPoolFunction.h"
-#include "scheduler/TaskFunction.h"
 #include "scheduler/FiberFunction.h"
 #include "scheduler/Fiber.h"
+#include "scheduler/Task.h"
+#include "scheduler/SyncPrimitive.h"
 
 namespace chrone::multithreading::scheduler
 {
@@ -24,6 +25,8 @@ WorkItemFunction::MainLoop(
 
 	FiberPool&	fiberPool{ scheduler.fiberPool };
 	TaskPool&	taskPool{ scheduler.taskPool };
+
+	Semaphore* const	semaphores{ scheduler.semaphores };
 
 	Uint8	threadIndex{ FiberFunction::GetFiberData()->threadIndex };
 	ThreadFiberData&	threadFiberData{ threadFibersData[threadIndex] };
@@ -49,7 +52,16 @@ WorkItemFunction::MainLoop(
 			continue;
 		}
 
-		dependentFiber = TaskFunction::ExecuteTask(currentTask);
+		const TaskDecl&	decl{ currentTask.decl };
+
+		decl.functor(decl.data);
+
+		Semaphore&	dependency{ semaphores[currentTask.dependencyIndex] };
+
+		auto const	lastDependencyCount{ dependency.dependentCounter.fetch_sub(
+			1u, std::memory_order_release) };
+
+		dependentFiber = lastDependencyCount == 1u ? dependency.dependentFiber.load(std::memory_order_relaxed) : nullptr;
 	}
 }
 

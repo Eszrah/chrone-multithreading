@@ -4,10 +4,12 @@
 
 #include "NativeType.h"
 #include "Spinlock.h"
-#include "TaskNodeList.h"
+
 
 namespace chrone::multithreading::scheduler
 {
+
+struct Task;
 
 struct TaskPool
 {

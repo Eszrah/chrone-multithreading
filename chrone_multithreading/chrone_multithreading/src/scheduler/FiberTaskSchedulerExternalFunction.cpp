@@ -3,6 +3,7 @@
 #include "scheduler/FiberTaskSchedulerData.h"
 #include "scheduler/TaskPoolFunction.h"
 #include "scheduler/HFence.h"
+#include "scheduler/SyncPrimitive.h"
 
 
 namespace chrone::multithreading::scheduler
@@ -16,17 +17,14 @@ FiberTaskSchedulerExternalFunction::SubmitTasks(
 	TaskDecl* tasks,
 	HFence hFence)
 {
-	TaskDependency	dependency{};
-	Fence*	fence{ static_cast<Fence*>(hFence.data) };
+	Fence*	fences{ scheduler.fences };
+	const HSemaphore hSemaphore{ 
+		hFence.handle == FiberTaskSchedulerData::defaultHSyncPrimitive ?
+		HSemaphore{ FiberTaskSchedulerData::defaultHSyncPrimitive } :
+		fences[hFence.handle].hSemaphore };
 
-	if (fence)
-	{
-		dependency.dependentCounter = &fence->dependantCounter;
-		dependency.fence = &fence->conditionVariable;
-		dependency.dependentFiber = nullptr;
-	}
-
-	TaskPoolFunction::PushTasks(scheduler.taskPool, count, tasks, dependency);
+	TaskPoolFunction::PushTasks(
+		scheduler.taskPool, count, tasks, hSemaphore.handle);
 	return true;
 }
 
@@ -36,10 +34,10 @@ FiberTaskSchedulerExternalFunction::WaitFence(
 	FiberTaskSchedulerData& scheduler,
 	HFence& hFence)
 {
-	Fence*	fence{ static_cast<Fence*>(hFence.data) };
-	std::unique_lock	lock{ fence->mutex };
+	//Fence*	fence{ static_cast<Fence*>(hFence.data) };
+	//std::unique_lock	lock{ fence->mutex };
 
-	fence->conditionVariable.wait(lock);
+	//fence->conditionVariable.wait(lock);
 
 	return true;
 }

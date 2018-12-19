@@ -2,8 +2,6 @@
 
 #include "NativeType.h"
 #include "TaskDecl.h"
-#include "TaskDependency.h"
-
 
 namespace chrone::multithreading::scheduler
 {

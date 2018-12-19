@@ -121,7 +121,7 @@
   <ItemGroup>
     <ClInclude Include="include\AssertMacro.h" />
     <ClInclude Include="include\scheduler\DummyTaskFunctor.h" />
-    <ClInclude Include="include\scheduler\Fence.h" />
+    <ClInclude Include="include\scheduler\SyncPrimitive.h" />
     <ClInclude Include="include\scheduler\FiberFunction.h" />
     <ClInclude Include="include\scheduler\FiberPoolFunction.h" />
     <ClInclude Include="include\scheduler\FiberTaskSchedulerFunction.h" />
@@ -131,13 +131,9 @@
     <ClInclude Include="include\scheduler\FiberTaskSchedulerInternalFunction.h" />
     <ClInclude Include="include\scheduler\HFence.h" />
     <ClInclude Include="include\scheduler\HSemaphore.h" />
-    <ClInclude Include="include\scheduler\Semaphore.h" />
     <ClInclude Include="include\scheduler\Task.h" />
     <ClInclude Include="include\scheduler\TaskBuffer.h" />
     <ClInclude Include="include\scheduler\TaskBufferFunction.h" />
-    <ClInclude Include="include\scheduler\TaskDependency.h" />
-    <ClInclude Include="include\scheduler\TaskFunction.h" />
-    <ClInclude Include="include\scheduler\TaskNodeList.h" />
     <ClInclude Include="include\scheduler\TaskPool.h" />
     <ClInclude Include="include\scheduler\TaskPoolFunction.h" />
     <ClInclude Include="include\scheduler\ThreadContextData.h" />
@@ -160,7 +156,6 @@
     <ClCompile Include="src\scheduler\FiberTaskSchedulerFunction.cpp" />
     <ClCompile Include="src\scheduler\FiberTaskSchedulerInternalFunction.cpp" />
     <ClCompile Include="src\scheduler\TaskBufferFunction.cpp" />
-    <ClCompile Include="src\scheduler\TaskFunction.cpp" />
     <ClCompile Include="src\scheduler\TaskPoolFunction.cpp" />
     <ClCompile Include="src\scheduler\WindowsFiberHelper.cpp" />
     <ClCompile Include="src\scheduler\WorkerFiberEntryPoint.cpp" />

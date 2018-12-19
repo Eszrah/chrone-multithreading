@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "TaskNodeList.h"
+#include "TaskDecl.h"
 
 namespace chrone::multithreading::scheduler
 {
