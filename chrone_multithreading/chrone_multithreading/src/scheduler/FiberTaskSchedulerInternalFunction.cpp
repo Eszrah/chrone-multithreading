@@ -21,9 +21,9 @@ FiberTaskSchedulerInternalFunction::SubmitTasks(
 
 	if (semaphore)
 	{
-		semaphore->dependantFiber = nullptr;
-		dependency.dependentFiber = &semaphore->dependantFiber;
-		dependency.dependentCounter = &semaphore->dependantCounter;
+		semaphore->dependentFiber = nullptr;
+		dependency.dependentFiber = &semaphore->dependentFiber;
+		dependency.dependentCounter = &semaphore->dependentCounter;
 		dependency.fence = nullptr;
 	}
 
@@ -41,8 +41,8 @@ FiberTaskSchedulerInternalFunction::WaitSemaphore(
 	FiberData*	fiberData{ FiberFunction::GetFiberData() };
 	Semaphore*	semaphore{ static_cast<Semaphore*>(hSemaphore.data) };
 
-	semaphore->dependantFiber.store(fiberData->fiber, std::memory_order_relaxed);
-	semaphore->dependantCounter.fetch_add(1, std::memory_order_relaxed);
+	semaphore->dependentFiber.store(fiberData->fiber, std::memory_order_relaxed);
+	semaphore->dependentCounter.fetch_add(1, std::memory_order_relaxed);
 
 
 	return true;

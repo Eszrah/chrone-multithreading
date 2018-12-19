@@ -18,8 +18,8 @@ struct Semaphore
 	Semaphore&	operator=(const Semaphore&) = delete;
 	Semaphore&	operator=(Semaphore&&) = default;
 
-	std::atomic<Uint>	dependantCounter{};
-	std::atomic<Fiber*>	dependantFiber{};
+	std::atomic<Uint>	dependentCounter{};
+	std::atomic<Fiber*>	dependentFiber{};
 };
 
 }

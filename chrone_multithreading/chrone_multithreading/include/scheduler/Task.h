@@ -15,16 +15,16 @@ struct Task
 	Task(Task&&) = default;
 	~Task() = default;
 
-	Task(TaskDecl decl, TaskDependency dependency) :
+	Task(TaskDecl decl, Uint32 dependencyIndex) :
 		decl{ decl },
-		dependency{ dependency }
+		dependencyIndex{ dependencyIndex }
 	{}
 
 	Task&	operator=(const Task&) = delete;
 	Task&	operator=(Task&&) = default;
 
 	TaskDecl	decl;
-	TaskDependency	dependency;
+	Uint32	dependencyIndex{ 0u };
 };
 
 }
