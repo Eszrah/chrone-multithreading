@@ -40,7 +40,7 @@ namespace chrone::multithreading::scheduler
 	TaskPoolFunction::PushTasks(
 		TaskPool& pool, 
 		Uint32 count, 
-		TaskDecl* tasksDecl, 
+		const TaskDecl* tasksDecl, 
 		const Uint32 dependencyIndex)
 	{
 		const Uint32	tasksMaxCountMinusOne{ pool.tasksMaxCount - 1u};

@@ -34,8 +34,8 @@ struct FiberTaskSchedulerData
 	std::vector<ThreadFiberData>	threadFibersData{};
 
 	Spinlock	fenceLock{};
-	Uint16	fenceMaxCount{};
-	std::vector<Uint16>	freeFencesIndices{};
+	Uint32	fenceMaxCount{};
+	std::vector<Uint32>	freeFencesIndices{};
 	Fence*	fences{};
 
 	Spinlock	semaphoreLock{};

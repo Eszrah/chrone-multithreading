@@ -204,11 +204,11 @@ FiberTaskSchedulerFunction::_AllocateFence(
 	FiberTaskSchedulerData& scheduler)
 {
 	Fence*	fences{ scheduler.fences };
-	Uint16	fenceIndex{ };
+	Uint32	fenceIndex{ };
 
 	{
 		LockGuardSpinLock	lock{ scheduler.fenceLock };
-		std::vector<Uint16>&	freeFencesIndices{ scheduler.freeFencesIndices };
+		std::vector<Uint32>&	freeFencesIndices{ scheduler.freeFencesIndices };
 
 		//must handle if too many allocations
 
@@ -232,7 +232,7 @@ FiberTaskSchedulerFunction::_FreeFence(
 
 	{
 		LockGuardSpinLock	lock{ scheduler.fenceLock };
-		std::vector<Uint16>&	freeFencesIndices{ scheduler.freeFencesIndices };
+		std::vector<Uint32>&	freeFencesIndices{ scheduler.freeFencesIndices };
 
 		freeFencesIndices.push_back(hFence.handle);
 	}

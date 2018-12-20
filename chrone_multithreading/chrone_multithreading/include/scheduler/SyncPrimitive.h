@@ -39,6 +39,7 @@ struct Fence
 
 
 	std::mutex	mutex{};
+	Uint8	fenceSignaled{ false };
 	std::condition_variable	conditionVariable{};
 	HSemaphore	hSemaphore{};
 };
