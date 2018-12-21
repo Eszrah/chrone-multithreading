@@ -35,11 +35,18 @@ FiberTaskSchedulerExternalFunction::SubmitTasks(
 	HFence hFence)
 {
 	Fence*	fences{ scheduler.fences };
+	Semaphore*	semaphores{ scheduler.semaphores };
+	
 	const HSemaphore hSemaphore{ fences[hFence.handle].hSemaphore };
+	Semaphore& semaphore{ semaphores[hSemaphore.handle] };
+
+	semaphore.dependentCounter.fetch_add(count, std::memory_order_relaxed);
+
+	//We want to make sure the write can't be reordered after the push
+	std::atomic_thread_fence(std::memory_order_release);
 
 	return TaskPoolFunction::PushTasks(
 		scheduler.taskPool, count, tasks, hSemaphore.handle);
-	return true;
 }
 
 
@@ -49,8 +56,7 @@ FiberTaskSchedulerExternalFunction::SubmitTasks(
 	Uint32 count, 
 	const TaskDecl* tasks)
 {
-	return TaskPoolFunction::PushTasks( scheduler.taskPool, count, tasks, 
-		{FiberTaskSchedulerData::defaultHSyncPrimitive});
+	return SubmitTasks(scheduler, count, tasks, { scheduler.defaultHSyncPrimitive });
 }
 
 
@@ -66,8 +72,6 @@ FiberTaskSchedulerExternalFunction::WaitFence(
 		{ FiberTaskSchedulerData::defaultHSyncPrimitive });
 
 	std::unique_lock<std::mutex>	lock{ fence->mutex };
-
-	CHR_ASSERT(!fence->fenceSignaled);
 	fence->conditionVariable.wait(lock, 
 		[fenceSignaled = std::ref(fence->fenceSignaled)]
 			{ return fenceSignaled; });

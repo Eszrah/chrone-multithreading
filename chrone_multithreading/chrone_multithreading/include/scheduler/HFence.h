@@ -7,7 +7,7 @@ namespace chrone::multithreading::scheduler
 
 struct HFence 
 {
-	Uint16	handle{};
+	Uint32	handle{};
 };
 
 }

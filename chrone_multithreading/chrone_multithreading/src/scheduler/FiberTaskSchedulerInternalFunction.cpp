@@ -4,6 +4,7 @@
 #include "scheduler/TaskPoolFunction.h"
 #include "scheduler/FiberFunction.h"
 #include "scheduler/HSemaphore.h"
+#include "scheduler/SyncPrimitive.h"
 
 
 namespace chrone::multithreading::scheduler
@@ -16,9 +17,25 @@ FiberTaskSchedulerInternalFunction::SubmitTasks(
 	TaskDecl* tasks, 
 	HSemaphore hSemaphore)
 {
-	TaskPoolFunction::PushTasks(
+	Semaphore& semaphore{ scheduler.semaphores[hSemaphore.handle] };
+
+	semaphore.dependentCounter.fetch_add(count, std::memory_order_relaxed);
+
+	//We want to make sure the write can't be reordered after the push
+	std::atomic_thread_fence(std::memory_order_release);
+
+	return TaskPoolFunction::PushTasks(
 		scheduler.taskPool, count, tasks, hSemaphore.handle);
-	return true;
+}
+
+
+bool 
+FiberTaskSchedulerInternalFunction::SubmitTasks(
+	FiberTaskSchedulerData& scheduler, 
+	Uint32 count, 
+	TaskDecl* tasks)
+{
+	return SubmitTasks(scheduler, count, tasks, { scheduler.defaultHSyncPrimitive });
 }
 
 
