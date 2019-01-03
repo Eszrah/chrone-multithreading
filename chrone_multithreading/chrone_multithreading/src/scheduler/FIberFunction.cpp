@@ -22,7 +22,6 @@ FiberFunction::GetFiberData()
 
 void 
 FiberFunction::SwitchToFiber(
-	FiberPool& fiberPool,
 	ThreadFiberData& threadFiberData,
 	Fiber* newFiber)
 {
@@ -37,5 +36,27 @@ FiberFunction::SwitchToFiber(
 	threadFiberData.currentFiber = newFiber;
 	WindowsFiberHelper::SwitchToFiber(newFiber->fiberHandle);
 }
+
+
+void
+FiberFunction::WaitToFiber(
+	FiberPool& fiberPool,
+	ThreadFiberData& threadFiberData)
+{
+	Fiber*	newFiber{ FiberPoolFunction::PopFreeFiber(fiberPool) };
+
+	//Setup the new fiber data (to allow it to properly retrieve its thread once it restart)
+	FiberData*	fiberData{ threadFiberData.currentFiber->fiberData };
+	FiberData*	newFiberData{ newFiber->fiberData };
+
+	assert(!threadFiberData.previousFiber);
+	newFiberData->threadIndex = fiberData->threadIndex;
+
+	threadFiberData.previousFiber = nullptr;
+	threadFiberData.waitingFiber = threadFiberData.currentFiber;
+	threadFiberData.currentFiber = newFiber;
+	WindowsFiberHelper::SwitchToFiber(newFiber->fiberHandle);
+}
+
 
 }

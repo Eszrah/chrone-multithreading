@@ -1,5 +1,7 @@
 #include "scheduler/FiberTaskSchedulerInternalFunction.h"
 
+#include <cassert>
+
 #include "scheduler/FiberTaskSchedulerData.h"
 #include "scheduler/TaskPoolFunction.h"
 #include "scheduler/FiberFunction.h"
@@ -44,12 +46,14 @@ FiberTaskSchedulerInternalFunction::WaitSemaphore(
 	FiberTaskSchedulerData& scheduler, 
 	HSemaphore& hSemaphore)
 {
-	//FiberData*	fiberData{ FiberFunction::GetFiberData() };
-	//Semaphore*	semaphore{ static_cast<Semaphore*>(hSemaphore.data) };
+	FiberData*	fiberData{ FiberFunction::GetFiberData() };
+	Semaphore&	semaphore{ scheduler.semaphores[hSemaphore.handle] };
 
-	//semaphore->dependentFiber.store(fiberData->fiber, std::memory_order_relaxed);
-	//semaphore->dependentCounter.fetch_add(1, std::memory_order_relaxed);
-
+	semaphore.dependentFiber.store(fiberData->fiber, std::memory_order_relaxed);
+	semaphore.dependentCounter.fetch_add(1, std::memory_order_release);
+	
+	//You must finish this code
+	assert(false);
 
 	return true;
 }

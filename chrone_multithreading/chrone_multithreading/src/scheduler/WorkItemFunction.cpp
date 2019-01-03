@@ -39,6 +39,11 @@ WorkItemFunction::MainLoop(
 		if (dependentFiber)
 		{
 			FiberFunction::SwitchToFiber(fiberPool, threadFiberData, dependentFiber);
+
+			//you may have a previous fiber set to null if you switch with the function WaitToFiber
+			//=> deport the code below in the switch to fiber function
+			assert(false);
+
 			threadIndex = FiberFunction::GetFiberData()->threadIndex;
 			threadFiberData = threadFibersData[threadIndex];
 			assert(threadFiberData.previousFiber);
@@ -49,19 +54,45 @@ WorkItemFunction::MainLoop(
 		if (!TaskPoolFunction::TryPopTask(taskPool, currentTask))
 		{
 			//Wait ???
+			assert(false);
 			continue;
 		}
 
 		const TaskDecl&	decl{ currentTask.decl };
 
 		decl.functor(decl.data);
+		assert(false); //=> call the functor in a wrapper to provide argument without memory allocation
 
 		Semaphore&	dependency{ semaphores[currentTask.dependencyIndex] };
 
+		//Decreasing the global counter
+		/*
+		A read-modify-write operation with this memory order is both an acquire operation and a release operation. 
+		No memory reads or writes in the current thread can be reordered before or after this store. 
+		All writes in other threads that release the same atomic variable are visible before the modification 
+		and the modification is visible in other threads that acquire the same atomic variable.
+		*/
 		auto const	lastDependencyCount{ dependency.dependentCounter.fetch_sub(
-			1u, std::memory_order_release) };
+			1u, std::memory_order_acq_rel) }; //
 
-		dependentFiber = lastDependencyCount == 1u ? dependency.dependentFiber.load(std::memory_order_relaxed) : nullptr;
+		//to be considered seriously
+		assert(false); //=> how coult I be sure that the fetch part can synchronize with the add ???? should i use acq_release ?
+		//we have to make sure the fetch sub can synchronize-with the store fetch add operation performed by the thread who pushed use the semaphore
+		
+		//we are now sure that we CAN synchronize with the fetch-add operation performed by the "waiting thread" (it there is one)
+		if (lastDependencyCount == 0u)
+		{
+			//all the load are now at least as recent as the lastDependencyCount value
+			Fiber*	dependentFiber{ dependency.dependentFiber.load(std::memory_order_relaxed) };
+
+			assert(false);//think twice about code validity
+			if (dependentFiber)
+			{
+				//We switch to it
+			}
+		}
+
+		//dependentFiber = lastDependencyCount == 1u ? dependency.dependentFiber.load(std::memory_order_relaxed) : nullptr;
 	}
 }
 

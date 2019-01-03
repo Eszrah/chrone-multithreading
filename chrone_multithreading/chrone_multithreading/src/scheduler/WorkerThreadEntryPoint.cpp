@@ -27,6 +27,7 @@ WorkerThreadFunction::EntryPoint(
 	_Shutdown();
 }
 
+
 bool 
 WorkerThreadFunction::_Initialize(
 	WorkerThreadFuncData funcData)
