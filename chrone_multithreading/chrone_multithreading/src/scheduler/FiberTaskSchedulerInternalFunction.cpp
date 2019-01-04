@@ -49,9 +49,9 @@ FiberTaskSchedulerInternalFunction::WaitSemaphore(
 	FiberData*	fiberData{ FiberFunction::GetFiberData() };
 	Semaphore&	semaphore{ scheduler.semaphores[hSemaphore.handle] };
 
-	semaphore.dependentFiber.store(fiberData->fiber, std::memory_order_relaxed);
-	semaphore.dependentCounter.fetch_add(1, std::memory_order_release);
-	
+	semaphore.dependentCounter.fetch_add(1, std::memory_order_relaxed);
+	semaphore.dependentFiber.store(fiberData->fiber, std::memory_order_release);
+
 	//You must finish this code
 	assert(false);
 
