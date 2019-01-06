@@ -12,8 +12,8 @@ struct HSemaphore;
 
 struct FiberTaskSchedulerInternalFunction
 {
-	static bool	SubmitTasks(FiberTaskSchedulerData& scheduler, Uint32 count, TaskDecl* tasks, HSemaphore hSemaphore);
-	static bool	SubmitTasks(FiberTaskSchedulerData& scheduler, Uint32 count, TaskDecl* tasks);
+	static bool	SubmitTasks(FiberTaskSchedulerData& scheduler, const Uint32 count, const TaskDecl* tasks, HSemaphore hSemaphore);
+	static bool	SubmitTasks(FiberTaskSchedulerData& scheduler, const Uint32 count, const TaskDecl* tasks);
 	static bool	WaitSemaphore(FiberTaskSchedulerData& scheduler, HSemaphore& hSemaphore);
 };
 

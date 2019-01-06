@@ -30,10 +30,15 @@ WaitFenceJob(
 bool
 FiberTaskSchedulerExternalFunction::SubmitTasks(
 	FiberTaskSchedulerData& scheduler,
-	Uint32 count, 
+	const Uint32 count, 
 	const TaskDecl* tasks,
 	HFence hFence)
 {
+	if (!count || !tasks)
+	{
+		return false;
+	}
+
 	Fence*	fences{ scheduler.fences };
 	Semaphore*	semaphores{ scheduler.semaphores };
 	
@@ -53,7 +58,7 @@ FiberTaskSchedulerExternalFunction::SubmitTasks(
 bool 
 FiberTaskSchedulerExternalFunction::SubmitTasks(
 	FiberTaskSchedulerData& scheduler, 
-	Uint32 count, 
+	const Uint32 count, 
 	const TaskDecl* tasks)
 {
 	return SubmitTasks(scheduler, count, tasks, { scheduler.defaultHSyncPrimitive });

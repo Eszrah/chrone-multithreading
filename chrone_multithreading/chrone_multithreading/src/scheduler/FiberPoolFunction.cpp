@@ -61,6 +61,7 @@ Fiber*
 FiberPoolFunction::PopFreeFiber(
 	FiberPool& pool)
 {
+	LockGuardSpinLock	lock{ pool.freeFibersLock };
 	std::vector<Fiber*>&	freeFibers{ pool.freeFibers };
 	assert(!freeFibers.empty());
 	Fiber*	fiber{ freeFibers.back() };

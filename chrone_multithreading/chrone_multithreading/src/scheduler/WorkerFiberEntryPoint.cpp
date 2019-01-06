@@ -47,7 +47,8 @@ FiberEntryPointFunction::_Shutdown()
 	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
 	ThreadsData&	threadsData{ scheduler->threadsData };
 	FiberPool&	fiberPool{ scheduler->fiberPool };
-	ThreadFiberData&	threadFiberData{ scheduler->threadFibersData[threadIndex] };
+	ThreadFiberData*	threadFibersData{ scheduler->threadFibersData.data() };
+	ThreadFiberData&	threadFiberData{ threadFibersData[threadIndex] };
 	Fiber&	threadFiber{ scheduler->threadsFibers[threadIndex] };
 	const bool	threadsShutdownState{ threadsData.threadsShutdownState[threadIndex] };
 
@@ -70,7 +71,7 @@ FiberEntryPointFunction::_Shutdown()
 	threadsData.threadsCountSignal.fetch_add(1, std::memory_order_release);
 	while (threadsData.threadsCountSignal.load(std::memory_order_acquire) != 0u);
 	//Switching to the thread original fiber
-	FiberFunction::SwitchToFiber(fiberPool, threadFiberData, &threadFiber);
+	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, threadFiberData, &threadFiber);
 }
 
 }

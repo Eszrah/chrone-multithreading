@@ -145,6 +145,8 @@ bool
 FiberTaskSchedulerFunction::Shutdown(
 	FiberTaskSchedulerData& scheduler)
 {
+	you have to make sure that all fiber are available (just an assert), otherwise some fiber could not be reachable (if a native Fiber is not, could be fucked up)
+
 	ThreadsData&	threadsData{ scheduler.threadsData };
 	const auto	threadCount{ threadsData.threads.size() };
 

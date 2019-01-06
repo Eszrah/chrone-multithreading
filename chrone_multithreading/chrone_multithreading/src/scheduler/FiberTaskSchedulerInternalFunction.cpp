@@ -4,6 +4,7 @@
 
 #include "scheduler/FiberTaskSchedulerData.h"
 #include "scheduler/TaskPoolFunction.h"
+#include "scheduler/FiberPoolFunction.h"
 #include "scheduler/FiberFunction.h"
 #include "scheduler/HSemaphore.h"
 #include "scheduler/SyncPrimitive.h"
@@ -15,13 +16,18 @@ namespace chrone::multithreading::scheduler
 bool 
 FiberTaskSchedulerInternalFunction::SubmitTasks(
 	FiberTaskSchedulerData& scheduler, 
-	Uint32 count, 
-	TaskDecl* tasks, 
+	const Uint32 count, 
+	const TaskDecl* tasks, 
 	HSemaphore hSemaphore)
 {
+	if (!count || !tasks)
+	{
+		return false;
+	}
+
 	Semaphore& semaphore{ scheduler.semaphores[hSemaphore.handle] };
 
-	semaphore.dependentCounter.fetch_add(count, std::memory_order_relaxed);
+	semaphore.dependentCounter.fetch_add(count + 1u, std::memory_order_relaxed);
 
 	//We want to make sure the write can't be reordered after the push
 	std::atomic_thread_fence(std::memory_order_release);
@@ -34,8 +40,8 @@ FiberTaskSchedulerInternalFunction::SubmitTasks(
 bool 
 FiberTaskSchedulerInternalFunction::SubmitTasks(
 	FiberTaskSchedulerData& scheduler, 
-	Uint32 count, 
-	TaskDecl* tasks)
+	const Uint32 count, 
+	const TaskDecl* tasks)
 {
 	return SubmitTasks(scheduler, count, tasks, { scheduler.defaultHSyncPrimitive });
 }
@@ -46,14 +52,15 @@ FiberTaskSchedulerInternalFunction::WaitSemaphore(
 	FiberTaskSchedulerData& scheduler, 
 	HSemaphore& hSemaphore)
 {
-	FiberData*	fiberData{ FiberFunction::GetFiberData() };
+	ThreadFiberData*	threadFibersData{ scheduler.threadFibersData.data() };
+	FiberPool&	fiberPool{ scheduler.fiberPool };
+	Fiber*	freeFiber{ FiberPoolFunction::PopFreeFiber(fiberPool) };
+	const FiberData*	fiberData{ FiberFunction::GetFiberData() };
 	Semaphore&	semaphore{ scheduler.semaphores[hSemaphore.handle] };
 
-	semaphore.dependentCounter.fetch_add(1, std::memory_order_relaxed);
-	semaphore.dependentFiber.store(fiberData->fiber, std::memory_order_release);
+	semaphore.dependentFiber.store(fiberData->fiber, std::memory_order_relaxed);
+	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, threadFibersData[fiberData->threadIndex], freeFiber);
 
-	//You must finish this code
-	assert(false);
 
 	return true;
 }

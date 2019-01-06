@@ -11,11 +11,8 @@ struct Task;
 
 struct FiberFunction
 {
-	static FiberData*	GetFiberData();
-	static void	SwitchToFiber(ThreadFiberData& threadFiberData, Fiber* newFiber);
-
-	static void WaitToFiber(FiberPool & fiberPool, ThreadFiberData& threadFiberData);
-
+	static const FiberData*	GetFiberData();
+	static ThreadFiberData&	SwitchToFiber(FiberPool& fiberPool, ThreadFiberData* threadsFiberData, ThreadFiberData& fromThreadFiberData, Fiber* newFiber);
 };
 
 }

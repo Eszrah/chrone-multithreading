@@ -8,54 +8,77 @@
 #include "scheduler/WindowsFiberHelper.h"
 #include "scheduler/ThreadFiberData.h"
 #include "scheduler/FiberData.h"
+#include "scheduler/SyncPrimitive.h"
 #include "scheduler/Fiber.h"
 
 namespace chrone::multithreading::scheduler
 {
 
-FiberData* 
+const FiberData* 
 FiberFunction::GetFiberData()
 {
 	return WindowsFiberHelper::GetCurrentFiberData<FiberData>();
 }
 
 
-void 
+ThreadFiberData&
 FiberFunction::SwitchToFiber(
-	ThreadFiberData& threadFiberData,
+	FiberPool& fiberPool,
+	ThreadFiberData* threadsFiberData, 
+	ThreadFiberData& fromThreadFiberData,
 	Fiber* newFiber)
 {
+	{
 	//Setup the new fiber data (to allow it to properly retrieve its thread once it restart)
-	FiberData*	fiberData{ threadFiberData.currentFiber->fiberData };
+	FiberData*	fiberData{ fromThreadFiberData.currentFiber->fiberData };
 	FiberData*	newFiberData{ newFiber->fiberData };
 
-	assert(!threadFiberData.previousFiber);
+	assert(!fromThreadFiberData.previousFiber && 
+		!fromThreadFiberData.syncSemaphore);
+	
 	newFiberData->threadIndex = fiberData->threadIndex;
-
-	threadFiberData.previousFiber = threadFiberData.currentFiber;
-	threadFiberData.currentFiber = newFiber;
+	fromThreadFiberData.previousFiber = fromThreadFiberData.currentFiber;
+	fromThreadFiberData.currentFiber = newFiber;
 	WindowsFiberHelper::SwitchToFiber(newFiber->fiberHandle);
-}
+	}
 
+	const Uint8	toThreadIndex{ FiberFunction::GetFiberData()->threadIndex };
+	ThreadFiberData& toThreadFiberData{ threadsFiberData[toThreadIndex] };
+	Semaphore*	syncSemaphore{ toThreadFiberData.syncSemaphore };
 
-void
-FiberFunction::WaitToFiber(
-	FiberPool& fiberPool,
-	ThreadFiberData& threadFiberData)
-{
-	Fiber*	newFiber{ FiberPoolFunction::PopFreeFiber(fiberPool) };
+	assert(syncSemaphore || fromThreadFiberData.previousFiber);
 
-	//Setup the new fiber data (to allow it to properly retrieve its thread once it restart)
-	FiberData*	fiberData{ threadFiberData.currentFiber->fiberData };
-	FiberData*	newFiberData{ newFiber->fiberData };
+	if (toThreadFiberData.previousFiber)
+	{
+		assert(!syncSemaphore);
+		FiberPoolFunction::PushFreeFiber(fiberPool, toThreadFiberData.previousFiber);
+		toThreadFiberData.previousFiber = nullptr;
+	}
+	else if (syncSemaphore)
+	{
+		assert(!fromThreadFiberData.previousFiber);
+		std::atomic<Fiber*>&	dependentFiberAtomic{ 
+			syncSemaphore->dependentFiber };
 
-	assert(!threadFiberData.previousFiber);
-	newFiberData->threadIndex = fiberData->threadIndex;
+		//can i use relaxed instead ???
+		const Uint	remainingJobCount{ 
+			syncSemaphore->dependentCounter.fetch_sub(
+				1, std::memory_order_release) };
 
-	threadFiberData.previousFiber = nullptr;
-	threadFiberData.waitingFiber = threadFiberData.currentFiber;
-	threadFiberData.currentFiber = newFiber;
-	WindowsFiberHelper::SwitchToFiber(newFiber->fiberHandle);
+		if (remainingJobCount == 0)
+		{
+			Fiber*	dependentFiber{ 
+				dependentFiberAtomic.load(std::memory_order_relaxed) };
+
+			dependentFiberAtomic.store(nullptr, std::memory_order_relaxed);
+
+			//make sure to write to memory before switching to the fiber
+			toThreadFiberData = SwitchToFiber(fiberPool, threadsFiberData, 
+				toThreadFiberData, dependentFiber);
+		}
+	}
+	
+	return toThreadFiberData;
 }
 
 

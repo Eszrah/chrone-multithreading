@@ -71,15 +71,17 @@ WorkerThreadFunction::_Initialize(
 bool 
 WorkerThreadFunction::_Shutdown()
 {
-	FiberData*	fiberData{ FiberFunction::GetFiberData() };
+	const FiberData*	fiberData{ FiberFunction::GetFiberData() };
 
 	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
 	FiberPool&	fiberPool{ scheduler->fiberPool };
 	ThreadsData&	threadsData{ scheduler->threadsData };
 
 	Uint	threadIndex{ fiberData->threadIndex };
-	std::vector<ThreadFiberData>&	threadFibersData{ scheduler->threadFibersData };
+	ThreadFiberData*	threadFibersData{ scheduler->threadFibersData.data() };
 	ThreadFiberData&	threadFiberData{ threadFibersData[threadIndex] };
+
+	you have to check if there it is still possible to reach this code with a non NULL previous fiber
 
 	if (threadsData.threadsShutdownState[threadIndex])
 	{
@@ -105,14 +107,7 @@ WorkerThreadFunction::_Shutdown()
 	//Getting and Switching to a native fiber
 	Fiber*	nativeFiber{ _GetFreeNativeFiber(fiberPool, scheduler->threadsFibers) };
 	threadsData.threadsShutdownState[threadIndex] = true;
-	FiberFunction::SwitchToFiber(fiberPool, threadFiberData, nativeFiber);
-
-	//You are now in another fiber
-	threadIndex = FiberFunction::GetFiberData()->threadIndex;
-	threadFiberData = threadFibersData[threadIndex];
-	assert(threadFiberData.previousFiber);
-	FiberPoolFunction::PushFreeFiber(fiberPool, threadFiberData.previousFiber);
-	threadFiberData.previousFiber = nullptr;
+	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, threadFiberData, nativeFiber);
 	return true;
 }
 
