@@ -60,7 +60,7 @@ FiberFunction::SwitchToFiber(
 		std::atomic<Fiber*>&	dependentFiberAtomic{ 
 			syncSemaphore->dependentFiber };
 
-		//can i use relaxed instead ???
+		//We want to make sure the dependant fiber stored in the fiber we come from is stored before we decrement and store
 		const Uint	remainingJobCount{ 
 			syncSemaphore->dependentCounter.fetch_sub(
 				1, std::memory_order_release) };

@@ -19,19 +19,28 @@ WorkerFiberEntryPoint(
 	const Uint8	threadIndex{ fiberData->threadIndex };
 	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
 
-	if (!scheduler->threadsData.threadsKeepRunning)
-	{
-		ThreadFiberData&	threadFiberData{
-			scheduler->threadFibersData[threadIndex] };
+	//you came from another fiber, so you have a previous fiber you need to release
+	ThreadFiberData&	threadFiberData{
+		scheduler->threadFibersData[threadIndex] };
+	assert(threadFiberData.previousFiber);
+	FiberPoolFunction::PushFreeFiber(scheduler->fiberPool, threadFiberData.previousFiber);
+	threadFiberData.previousFiber = nullptr;
 
-		assert(threadFiberData.previousFiber);
-		FiberPoolFunction::PushFreeFiber(scheduler->fiberPool, threadFiberData.previousFiber);
-		threadFiberData.previousFiber = nullptr;
-	}
-	else
+	if (scheduler->threadsData.threadsKeepRunning)
 	{
 		WorkItemFunction::MainLoop(*fiberData->scheduler);
+
+	//	ThreadFiberData&	threadFiberData{
+	//		scheduler->threadFibersData[threadIndex] };
+
+	//	assert(threadFiberData.previousFiber);
+	//	FiberPoolFunction::PushFreeFiber(scheduler->fiberPool, threadFiberData.previousFiber);
+	//	threadFiberData.previousFiber = nullptr;
 	}
+	//else
+	//{
+	//	WorkItemFunction::MainLoop(*fiberData->scheduler);
+	//}
 
 	
 	FiberEntryPointFunction::_Shutdown();

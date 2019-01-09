@@ -98,7 +98,9 @@ WorkerThreadFunction::_Shutdown()
 	}
 	
 	//Making sure everybody have free its old fiber
+	//Release store because we want to make sure the PushFreeFiber has been well executed
 	threadsData.threadsCountSignal.fetch_add(1, std::memory_order_release);
+	comment it
 	while (threadsData.threadsBarrier.load(std::memory_order_acquire));
 	
 	//signaling we have passed the barrier

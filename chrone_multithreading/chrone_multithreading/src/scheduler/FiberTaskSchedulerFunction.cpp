@@ -148,14 +148,15 @@ FiberTaskSchedulerFunction::Shutdown(
 	you have to make sure that all fiber are available (just an assert), otherwise some fiber could not be reachable (if a native Fiber is not, could be fucked up)
 
 	ThreadsData&	threadsData{ scheduler.threadsData };
-	const auto	threadCount{ threadsData.threads.size() };
+	const Uint	threadCount{ static_cast<Uint>(threadsData.threads.size()) };
 
 	//Signaling to all threads it is time to exit
 	threadsData.threadsBarrier.store(true, std::memory_order_release);
 	threadsData.threadsCountSignal.store(0u, std::memory_order_release);
 	threadsData.threadsKeepRunning.store(false, std::memory_order_release);
 	//Wait all threads have pushed their old fiber and reached the _threadsBarrier
-	_WaitAnddResetCounter(threadsData.threadsCountSignal, static_cast<Uint>(threadCount));
+	_WaitAnddResetCounter(threadsData.threadsCountSignal, threadCount);
+	//Release store to make sure the counter has well been reseted before signaling the fence to false
 	threadsData.threadsBarrier.store(false, std::memory_order_release);
 	auto const threadCountTwice{ threadCount * 2u };
 	while (threadsData.threadsCountSignal != threadCountTwice);
@@ -275,6 +276,8 @@ FiberTaskSchedulerFunction::_WaitAnddResetCounter(
 	std::atomic<Uint>& counter, 
 	Uint count)
 {
+	make sure to understand in what exetent the implicit seq_cst barrier ovveride other barrier
+
 	while (counter != count);
 	counter = 0u;
 }

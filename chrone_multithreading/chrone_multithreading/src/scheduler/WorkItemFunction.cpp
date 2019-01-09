@@ -53,18 +53,24 @@ WorkItemFunction::MainLoop(
 		const TaskDecl&	decl{ currentTask.decl };
 		Semaphore&		dependency{ semaphores[currentTask.dependencyIndex] };
 
+		dependentFiber = nullptr;
 		decl.functor(decl.data);
 		assert(false); //=> call the functor in a wrapper to provide argument without memory allocation
 
+		//We want to make sure there is no memory reordering between the call and the decrement store
 		const Uint	remainingJobCount{ dependency.dependentCounter.fetch_sub(
 			1u, std::memory_order_release) }; //
 
 		if (remainingJobCount == 0)
 		{
+			//We have synchronized-with the fiber store
 			dependentFiber = dependency.dependentFiber.load(
 				std::memory_order_relaxed);
 		}
 	}
+
+	//Check if you tried to quit the loop while there is still a dependent fiber to be executed
+	assert(!dependentFiber);
 }
 
 }
