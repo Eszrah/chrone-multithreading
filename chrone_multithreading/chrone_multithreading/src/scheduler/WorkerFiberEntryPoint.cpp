@@ -18,31 +18,24 @@ WorkerFiberEntryPoint(
 	FiberData*	fiberData{ static_cast<FiberData*>(data) };
 	const Uint8	threadIndex{ fiberData->threadIndex };
 	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
-
-	//you came from another fiber, so you have a previous fiber you need to release
 	ThreadFiberData&	threadFiberData{
 		scheduler->threadFibersData[threadIndex] };
-	assert(threadFiberData.previousFiber);
-	FiberPoolFunction::PushFreeFiber(scheduler->fiberPool, threadFiberData.previousFiber);
-	threadFiberData.previousFiber = nullptr;
+
+	//you may come from a mainLoop switchToFiber or from a shutdown switchToFiber
+
+	//threadFiberData.previousFiber is nullptr if you come from a thread which never switched to another fiber
+	//OR if you come from a thread's Shutdown function
+	if (threadFiberData.previousFiber)
+	{
+		FiberPoolFunction::PushFreeFiber(scheduler->fiberPool, threadFiberData.previousFiber);
+		threadFiberData.previousFiber = nullptr;
+	}
 
 	if (scheduler->threadsData.threadsKeepRunning)
 	{
 		WorkItemFunction::MainLoop(*fiberData->scheduler);
-
-	//	ThreadFiberData&	threadFiberData{
-	//		scheduler->threadFibersData[threadIndex] };
-
-	//	assert(threadFiberData.previousFiber);
-	//	FiberPoolFunction::PushFreeFiber(scheduler->fiberPool, threadFiberData.previousFiber);
-	//	threadFiberData.previousFiber = nullptr;
 	}
-	//else
-	//{
-	//	WorkItemFunction::MainLoop(*fiberData->scheduler);
-	//}
 
-	
 	FiberEntryPointFunction::_Shutdown();
 }
 
@@ -61,6 +54,10 @@ FiberEntryPointFunction::_Shutdown()
 	Fiber&	threadFiber{ scheduler->threadsFibers[threadIndex] };
 	const bool	threadsShutdownState{ threadsData.threadsShutdownState[threadIndex] };
 
+	assert(!threadFiberData.previousFiber);
+
+	CHECK IF THIS IS A VALID ASSUMPTION  that if !threadsShutdownState then you have a non nulll Fiber!!!!
+	To me you can't have ' a non NULL previous fiber
 	if (!threadsShutdownState)
 	{
 		//Pushing the old fiber if there is one, could contains another native thread fiber or a classic fiber

@@ -81,15 +81,16 @@ WorkerThreadFunction::_Shutdown()
 	ThreadFiberData*	threadFibersData{ scheduler->threadFibersData.data() };
 	ThreadFiberData&	threadFiberData{ threadFibersData[threadIndex] };
 
-	you have to check if there it is still possible to reach this code with a non NULL previous fiber
-
 	if (threadsData.threadsShutdownState[threadIndex])
 	{
 		return true;
 	}
 
+	//From here you have synchronize with the "threadsData.threadsKeepRunning.store(false, std::memory_order_release);"
+	//The synchronize with have been done in the mainLoop function with "while (threadsKeepRunning.load(std::memory_order_acquire))"
+	//Performed in the FiberTaskSchedulerFunction::Shutdown function
 
-	//Pushing the old fiber if there is one(could go to shutdown without never having switched to another fiber)
+	//Pushing the old fiber if there is one (could go to shutdown without never having switched to another fiber)
 	//could contains another native thread fiber or a classic fiber
 	if (threadFiberData.previousFiber)
 	{
@@ -98,17 +99,20 @@ WorkerThreadFunction::_Shutdown()
 	}
 	
 	//Making sure everybody have free its old fiber
-	//Release store because we want to make sure the PushFreeFiber has been well executed
+	//FALSE OLD COMMENT: Release store because we want to make sure the PushFreeFiber has been well executed
+	//The FiberPoolFunction::PushFreeFiber uses a SpinLock so no harm if reordering, but I'm scared of compiler reordering with following instructions
 	threadsData.threadsCountSignal.fetch_add(1, std::memory_order_release);
-	comment it
+	 
+	//It synchronize with the 'threadsData.threadsBarrier.store(false, std::memory_order_release);' to make sure you will see the 
+	//_WaitAnddResetCounter(threadsData.threadsCountSignal, threadCount); effect
 	while (threadsData.threadsBarrier.load(std::memory_order_acquire));
-	
-	//signaling we have passed the barrier
-	threadsData.threadsCountSignal.fetch_add(1, std::memory_order_release);
 
 	//Getting and Switching to a native fiber
 	Fiber*	nativeFiber{ _GetFreeNativeFiber(fiberPool, scheduler->threadsFibers) };
 	threadsData.threadsShutdownState[threadIndex] = true;
+
+	//signaling we have passed the barrier
+	threadsData.threadsCountSignal.fetch_add(1, std::memory_order_release);
 	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, threadFiberData, nativeFiber);
 	return true;
 }

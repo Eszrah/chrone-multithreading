@@ -26,17 +26,19 @@ FiberFunction::SwitchToFiber(
 	FiberPool& fiberPool,
 	ThreadFiberData* threadsFiberData, 
 	ThreadFiberData& fromThreadFiberData,
-	Fiber* newFiber)
+	Fiber* newFiber,
+	Semaphore* syncSemaphore)
 {
 	{
 	//Setup the new fiber data (to allow it to properly retrieve its thread once it restart)
 	FiberData*	fiberData{ fromThreadFiberData.currentFiber->fiberData };
 	FiberData*	newFiberData{ newFiber->fiberData };
 
-	assert(!fromThreadFiberData.previousFiber && 
+	assert(!fromThreadFiberData.previousFiber &&
 		!fromThreadFiberData.syncSemaphore);
 	
 	newFiberData->threadIndex = fiberData->threadIndex;
+	fromThreadFiberData.syncSemaphore = syncSemaphore;
 	fromThreadFiberData.previousFiber = fromThreadFiberData.currentFiber;
 	fromThreadFiberData.currentFiber = newFiber;
 	WindowsFiberHelper::SwitchToFiber(newFiber->fiberHandle);

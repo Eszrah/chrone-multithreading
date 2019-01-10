@@ -56,13 +56,11 @@ FiberTaskSchedulerInternalFunction::WaitSemaphore(
 	FiberPool&	fiberPool{ scheduler.fiberPool };
 	Fiber*	freeFiber{ FiberPoolFunction::PopFreeFiber(fiberPool) };
 	const FiberData*	fiberData{ FiberFunction::GetFiberData() };
-	Semaphore&	semaphore{ scheduler.semaphores[hSemaphore.handle] };
+	Semaphore*	semaphore{ &scheduler.semaphores[hSemaphore.handle] };
 
 	//The store is relaxed because the SwitchToFiber will issue an atomic fetch sub with release fence
-	semaphore.dependentFiber.store(fiberData->fiber, std::memory_order_relaxed);
-	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, threadFibersData[fiberData->threadIndex], freeFiber);
-
-
+	semaphore->dependentFiber.store(fiberData->fiber, std::memory_order_relaxed);
+	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, threadFibersData[fiberData->threadIndex], freeFiber, semaphore);
 	return true;
 }
 

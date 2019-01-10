@@ -129,6 +129,7 @@ FiberTaskSchedulerFunction::Initialize(
 
 	if (threadsData.threadsEmitError)
 	{
+		make sure everuthing is quitted in a safe way
 		_JoinThreads(scheduler.threadsData);
 		FiberPoolFunction::Clear(fiberPool);
 		return false;
@@ -151,14 +152,14 @@ FiberTaskSchedulerFunction::Shutdown(
 	const Uint	threadCount{ static_cast<Uint>(threadsData.threads.size()) };
 
 	//Signaling to all threads it is time to exit
-	threadsData.threadsBarrier.store(true, std::memory_order_release);
-	threadsData.threadsCountSignal.store(0u, std::memory_order_release);
+	threadsData.threadsBarrier.store(true, std::memory_order_relaxed);
+	threadsData.threadsCountSignal.store(0u, std::memory_order_relaxed);
 	threadsData.threadsKeepRunning.store(false, std::memory_order_release);
 	//Wait all threads have pushed their old fiber and reached the _threadsBarrier
 	_WaitAnddResetCounter(threadsData.threadsCountSignal, threadCount);
 	//Release store to make sure the counter has well been reseted before signaling the fence to false
 	threadsData.threadsBarrier.store(false, std::memory_order_release);
-	auto const threadCountTwice{ threadCount * 2u };
+	Uint const	threadCountTwice{ threadCount * 2u };
 	while (threadsData.threadsCountSignal != threadCountTwice);
 	threadsData.threadsCountSignal.store(0u, std::memory_order_release);
 
