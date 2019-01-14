@@ -125,7 +125,7 @@ FiberTaskSchedulerFunction::Initialize(
 	//Waiting all threads have finished initialization
 	_WaitAnddResetCounter(threadsData.threadsCountSignal, threadCount);
 	threadsData.threadsKeepRunning = threadsData.threadsEmitError ? false : true;
-	threadsData.threadsBarrier.store(false, std::memory_order_release);
+	threadsData.threadsBarrier.store(false, std::memory_order_seq_cst);
 
 	if (threadsData.threadsEmitError)
 	{
@@ -152,16 +152,19 @@ FiberTaskSchedulerFunction::Shutdown(
 	const Uint	threadCount{ static_cast<Uint>(threadsData.threads.size()) };
 
 	//Signaling to all threads it is time to exit
-	threadsData.threadsBarrier.store(true, std::memory_order_relaxed);
-	threadsData.threadsCountSignal.store(0u, std::memory_order_relaxed);
-	threadsData.threadsKeepRunning.store(false, std::memory_order_release);
+	threadsData.threadsBarrier.store(true, std::memory_order_seq_cst);
+	threadsData.threadsCountSignal.store(0u, std::memory_order_seq_cst);
+	threadsData.threadsKeepRunning.store(false, std::memory_order_seq_cst);
 	//Wait all threads have pushed their old fiber and reached the _threadsBarrier
 	_WaitAnddResetCounter(threadsData.threadsCountSignal, threadCount);
 	//Release store to make sure the counter has well been reseted before signaling the fence to false
-	threadsData.threadsBarrier.store(false, std::memory_order_release);
+	threadsData.threadsBarrier.store(false, std::memory_order_seq_cst);
+
 	Uint const	threadCountTwice{ threadCount * 2u };
-	while (threadsData.threadsCountSignal != threadCountTwice);
-	threadsData.threadsCountSignal.store(0u, std::memory_order_release);
+	while (threadsData.threadsCountSignal.load(std::memory_order_seq_cst ) 
+		!= threadCountTwice);
+	
+	threadsData.threadsCountSignal.store(0u, std::memory_order_seq_cst);
 
 	_JoinThreads(threadsData);
 	_Clear(scheduler);
@@ -214,7 +217,10 @@ FiberTaskSchedulerFunction::_AllocateFence(
 		LockGuardSpinLock	lock{ scheduler.fenceLock };
 		std::vector<Uint32>&	freeFencesIndices{ scheduler.freeFencesIndices };
 
-		//must handle if too many allocations
+		if( freeFencesIndices.empty() )
+		{
+			return HFence{ FiberTaskSchedulerData::defaultHSyncPrimitive };
+		}
 
 		fenceIndex = freeFencesIndices.back();
 		freeFencesIndices.pop_back();
@@ -251,7 +257,11 @@ FiberTaskSchedulerFunction::_AllocateSemaphore(
 	LockGuardSpinLock	lock{ scheduler.semaphoreLock };
 	std::vector<Uint>&	freeSemaphoresIndices{ scheduler.freeSemaphoresIndices };
 
-	//must handle if too many allocations
+	if(freeSemaphoresIndices.empty())
+	{
+		return HSemaphore{ FiberTaskSchedulerData::defaultHSyncPrimitive };
+	}
+
 	++scheduler.allocatedNativeSemaphore;
 	const Uint32	semaphoreIndex{ freeSemaphoresIndices.back() };
 	freeSemaphoresIndices.pop_back();
@@ -277,10 +287,8 @@ FiberTaskSchedulerFunction::_WaitAnddResetCounter(
 	std::atomic<Uint>& counter, 
 	Uint count)
 {
-	make sure to understand in what exetent the implicit seq_cst barrier ovveride other barrier
-
-	while (counter != count);
-	counter = 0u;
+	while (counter.load(std::memory_order_seq_cst) != count);
+	counter.store(0u, std::memory_order_seq_cst );
 }
 
 
