@@ -16,6 +16,7 @@ struct ThreadFiberData
 	ThreadFiberData&	operator=(const ThreadFiberData&) = default;
 	ThreadFiberData&	operator=(ThreadFiberData&&) = default;
 
+	Fiber*		syncSrcFiber{ nullptr };
 	Semaphore*	syncSemaphore{ nullptr };
 	Fiber*	previousFiber{ nullptr };
 	Fiber*	currentFiber{ nullptr };

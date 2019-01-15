@@ -24,7 +24,7 @@ struct FiberTaskSchedulerFunction
 {
 
 	static bool	Initialize(FiberTaskSchedulerData& scheduler,
-		const Uint32 threadCount, const Uint32 fiberCount, const Uint32 maxTaskCountPowerOfTwo, const Uint16 fenceMaxCount, const Uint16 semaphroeMaxCount);
+		const Uint16 threadCount, const Uint16 fiberCount, const Uint32 maxTaskCountPowerOfTwo, const Uint16 fenceMaxCount, const Uint16 semaphroeMaxCount);
 
 	static bool	Shutdown(FiberTaskSchedulerData& scheduler);
 

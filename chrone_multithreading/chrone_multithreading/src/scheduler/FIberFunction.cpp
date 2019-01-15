@@ -27,7 +27,8 @@ FiberFunction::SwitchToFiber(
 	ThreadFiberData* threadsFiberData, 
 	ThreadFiberData& fromThreadFiberData,
 	Fiber* newFiber,
-	Semaphore* syncSemaphore)
+	Semaphore* syncSemaphore,
+	Fiber* syncSrcFiber)
 {
 	{
 	//Setup the new fiber data (to allow it to properly retrieve its thread once it restart)
@@ -37,7 +38,11 @@ FiberFunction::SwitchToFiber(
 	assert(!fromThreadFiberData.previousFiber &&
 		!fromThreadFiberData.syncSemaphore);
 	
+	assert((syncSemaphore && syncSrcFiber) || 
+		(!syncSemaphore && !syncSrcFiber));
+
 	newFiberData->threadIndex = fiberData->threadIndex;
+	fromThreadFiberData.syncSrcFiber = syncSrcFiber;
 	fromThreadFiberData.syncSemaphore = syncSemaphore;
 	fromThreadFiberData.previousFiber = fromThreadFiberData.currentFiber;
 	fromThreadFiberData.currentFiber = newFiber;
@@ -62,7 +67,9 @@ FiberFunction::SwitchToFiber(
 		std::atomic<Fiber*>&	dependentFiberAtomic{ 
 			syncSemaphore->dependentFiber };
 
-		//We want to make sure the dependant fiber stored in the fiber we come from is stored before we decrement and store
+		//We want to make sure the dependent fiber stored in the fiber we come from is stored before we decrement and store
+		
+		syncSemaphore->dependentFiber.store( toThreadFiberData.syncSrcFiber, std::memory_order_relaxed );
 		const Uint	remainingJobCount{ 
 			syncSemaphore->dependentCounter.fetch_sub(
 				1, std::memory_order_release) };
@@ -73,6 +80,8 @@ FiberFunction::SwitchToFiber(
 				dependentFiberAtomic.load(std::memory_order_relaxed) };
 
 			dependentFiberAtomic.store(nullptr, std::memory_order_relaxed);
+			toThreadFiberData.syncSrcFiber = nullptr;
+			toThreadFiberData.syncSemaphore = nullptr;
 
 			//make sure to write to memory before switching to the fiber
 			toThreadFiberData = SwitchToFiber(fiberPool, threadsFiberData, 

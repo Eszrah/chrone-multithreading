@@ -14,7 +14,6 @@ FiberPoolFunction::Clear(
 	FiberPool& pool)
 {
 	pool.freeFibers.clear();
-	pool.readyFibers.clear();
 }
 
 
@@ -24,7 +23,6 @@ FiberPoolFunction::Reserve(
 	Uint fiberCount)
 {
 	pool.freeFibers.reserve(fiberCount);
-	pool.readyFibers.reserve(fiberCount);
 }
 
 

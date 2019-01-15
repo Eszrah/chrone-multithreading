@@ -55,17 +55,19 @@ WorkItemFunction::MainLoop(
 
 		dependentFiber = nullptr;
 		decl.functor(decl.data);
-		assert(false); //=> call the functor in a wrapper to provide argument without memory allocation
 
-		//We want to make sure there is no memory reordering between the call and the decrement store
+		//memory_order_acq_rel:
+		//release: We want to make sure there is no memory reordering between the call and the decrement store
+		//acquire: we want to make sure that if the count is 0, then the load will see the dependent fiber
 		const Uint	remainingJobCount{ dependency.dependentCounter.fetch_sub(
-			1u, std::memory_order_release) }; //
+			1u, std::memory_order_acq_rel) }; //
 
 		if (remainingJobCount == 0)
 		{
 			//We have synchronized-with the fiber store
 			dependentFiber = dependency.dependentFiber.load(
 				std::memory_order_relaxed);
+			assert( dependentFiber );
 		}
 	}
 

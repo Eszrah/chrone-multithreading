@@ -21,8 +21,8 @@ namespace chrone::multithreading::scheduler
 bool
 FiberTaskSchedulerFunction::Initialize(
 	FiberTaskSchedulerData& scheduler,
-	const Uint32 threadCount, 
-	const Uint32 fiberCount,
+	const Uint16 threadCount, 
+	const Uint16 fiberCount,
 	const Uint32 maxTaskCountPowerOfTwo,
 	const Uint16 fenceMaxCount,
 	const Uint16 semaphroeMaxCount)
@@ -83,6 +83,7 @@ FiberTaskSchedulerFunction::Initialize(
 	Fiber*	fiber{ fibers.data() };
 	
 	FiberPoolFunction::Reserve(fiberPool, fiberCount);
+	scheduler.nativeFiberCount = fiberCount;
 
 	for (Uint index{ 0 }; index < threadCount; ++index)
 	{
@@ -146,8 +147,6 @@ bool
 FiberTaskSchedulerFunction::Shutdown(
 	FiberTaskSchedulerData& scheduler)
 {
-	you have to make sure that all fiber are available (just an assert), otherwise some fiber could not be reachable (if a native Fiber is not, could be fucked up)
-
 	ThreadsData&	threadsData{ scheduler.threadsData };
 	const Uint	threadCount{ static_cast<Uint>(threadsData.threads.size()) };
 
@@ -324,6 +323,11 @@ FiberTaskSchedulerFunction::_Clear(
 	threadsData.threadsEmitError = false;
 	threadsData.threadsCountSignal = 0u;
 
+	{
+		LockGuardSpinLock	lock{ scheduler.fiberPool.freeFibersLock };
+		assert( scheduler.fiberPool.freeFibers.size() == scheduler.nativeFiberCount );
+	}
+
 	scheduler.threadFibersData.clear();
 	scheduler.fibersData.clear();
 	scheduler.fibers.clear();
@@ -342,6 +346,7 @@ FiberTaskSchedulerFunction::_Clear(
 
 	FiberPoolFunction::Clear(scheduler.fiberPool);
 	TaskPoolFunction::Clear(scheduler.taskPool);
+	scheduler.nativeFiberCount = 0u;
 }
 
 

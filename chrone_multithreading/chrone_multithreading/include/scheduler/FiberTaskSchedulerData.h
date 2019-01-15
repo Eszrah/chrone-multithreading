@@ -48,8 +48,9 @@ struct FiberTaskSchedulerData
 	std::vector<Fiber>	fibers{};
 	std::vector<Fiber>	threadsFibers{};
 
-	TaskPool	taskPool;
-	FiberPool	fiberPool;
+	TaskPool	taskPool{};
+	Uint32		nativeFiberCount{};
+	FiberPool	fiberPool{};
 	std::atomic<Uint>	defaultAtomicCounter{};
 };
 
