@@ -35,57 +35,72 @@ FiberFunction::SwitchToFiber(
 	FiberData*	fiberData{ fromThreadFiberData.currentFiber->fiberData };
 	FiberData*	newFiberData{ newFiber->fiberData };
 
+	//must have been reseted earlier
 	assert(!fromThreadFiberData.previousFiber &&
 		!fromThreadFiberData.syncSemaphore);
 	
+	//checking for missing argument
 	assert((syncSemaphore && syncSrcFiber) || 
 		(!syncSemaphore && !syncSrcFiber));
 
+	assert( (newFiber && (!syncSemaphore && !syncSrcFiber)) ||
+	(!newFiber && (syncSemaphore && syncSrcFiber)));
+
+	//We assign the threadData's data
 	newFiberData->threadIndex = fiberData->threadIndex;
 	fromThreadFiberData.syncSrcFiber = syncSrcFiber;
 	fromThreadFiberData.syncSemaphore = syncSemaphore;
 	fromThreadFiberData.previousFiber = fromThreadFiberData.currentFiber;
 	fromThreadFiberData.currentFiber = newFiber;
+	//We switch to the next fiber
 	WindowsFiberHelper::SwitchToFiber(newFiber->fiberHandle);
 	}
 
+	//From here we are in the new fiber we switched on
+	//!!!!!YOU MUST NOT USE THE FUNCTION ARGUMENTS!!!!!
+
+	//We have to retrieved the good thread data through the stored thread index (thread local variables can't be used)
 	const Uint8	toThreadIndex{ FiberFunction::GetFiberData()->threadIndex };
 	ThreadFiberData& toThreadFiberData{ threadsFiberData[toThreadIndex] };
-	Semaphore*	syncSemaphore{ toThreadFiberData.syncSemaphore };
+	Semaphore*	toSyncSemaphore{ toThreadFiberData.syncSemaphore };
 
-	assert(syncSemaphore || fromThreadFiberData.previousFiber);
+	//Checking we either come from a fiber we wanted to switch on for sync or because we retrieved a waiting fiber
+	assert(toSyncSemaphore || fromThreadFiberData.previousFiber);
+
 
 	if (toThreadFiberData.previousFiber)
 	{
-		assert(!syncSemaphore);
+		//it is not valid to have a sync semaphore
+		assert(!toSyncSemaphore);
 		FiberPoolFunction::PushFreeFiber(fiberPool, toThreadFiberData.previousFiber);
 		toThreadFiberData.previousFiber = nullptr;
 	}
-	else if (syncSemaphore)
+	else if (toSyncSemaphore)
 	{
+		//it is not valid to have a previous fiber
 		assert(!fromThreadFiberData.previousFiber);
 		std::atomic<Fiber*>&	dependentFiberAtomic{ 
-			syncSemaphore->dependentFiber };
+			toSyncSemaphore->dependentFiber };
 
 		//We want to make sure the dependent fiber stored in the fiber we come from is stored before we decrement and store
-		
-		syncSemaphore->dependentFiber.store( toThreadFiberData.syncSrcFiber, std::memory_order_relaxed );
+		dependentFiberAtomic.store(toThreadFiberData.syncSrcFiber, std::memory_order_relaxed);
+		//We make sure the dec store is not reordered with the previous store -> write release operaion
 		const Uint	remainingJobCount{ 
-			syncSemaphore->dependentCounter.fetch_sub(
+			toSyncSemaphore->dependentCounter.fetch_sub(
 				1, std::memory_order_release) };
 
+		//We check if we are the last one who dec the counter
 		if (remainingJobCount == 0)
 		{
-			Fiber*	dependentFiber{ 
-				dependentFiberAtomic.load(std::memory_order_relaxed) };
-
-			dependentFiberAtomic.store(nullptr, std::memory_order_relaxed);
+			//we are the thread who pushed the fiber value so we don't have to fetch it
+			//make sure the store can't be reordered before the previous store -> write release
+			dependentFiberAtomic.store(nullptr, std::memory_order_release );
 			toThreadFiberData.syncSrcFiber = nullptr;
 			toThreadFiberData.syncSemaphore = nullptr;
 
 			//make sure to write to memory before switching to the fiber
 			toThreadFiberData = SwitchToFiber(fiberPool, threadsFiberData, 
-				toThreadFiberData, dependentFiber);
+				toThreadFiberData, toThreadFiberData.syncSrcFiber );
 		}
 	}
 	

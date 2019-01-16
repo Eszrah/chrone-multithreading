@@ -17,7 +17,7 @@ WaitFenceJob(
 {
 	Fence*	fence{ static_cast<Fence*>(data) };
 
-	//Wait for jobs to be finished -> need access to scheduler
+	Wait for jobs to be finished -> need access to scheduler
 
 	{
 		std::lock_guard<std::mutex> lk{ fence->mutex };

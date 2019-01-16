@@ -130,9 +130,8 @@ FiberTaskSchedulerFunction::Initialize(
 
 	if (threadsData.threadsEmitError)
 	{
-		make sure everuthing is quitted in a safe way
 		_JoinThreads(scheduler.threadsData);
-		FiberPoolFunction::Clear(fiberPool);
+		_Clear( scheduler );
 		return false;
 	}
 
@@ -192,7 +191,7 @@ HSemaphore
 FiberTaskSchedulerFunction::AllocateSemaphore(
 	FiberTaskSchedulerData& scheduler)
 {
-	return HSemaphore{ _AllocateSemaphore(scheduler) };
+	return _AllocateSemaphore(scheduler);
 }
 
 

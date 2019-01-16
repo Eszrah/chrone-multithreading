@@ -30,6 +30,7 @@ FiberTaskSchedulerInternalFunction::SubmitTasks(
 	semaphore.dependentCounter.fetch_add(count + 1u, std::memory_order_relaxed);
 
 	//We want to make sure the write can't be reordered after the push
+	make sure it is valid with regards to fence-atomic operation 
 	std::atomic_thread_fence(std::memory_order_release);
 
 	return TaskPoolFunction::PushTasks(
