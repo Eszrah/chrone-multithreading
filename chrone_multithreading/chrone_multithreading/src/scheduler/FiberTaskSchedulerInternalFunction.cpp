@@ -27,11 +27,11 @@ FiberTaskSchedulerInternalFunction::SubmitTasks(
 
 	Semaphore& semaphore{ scheduler.semaphores[hSemaphore.handle] };
 
-	semaphore.dependentCounter.fetch_add(count + 1u, std::memory_order_relaxed);
-
-	//We want to make sure the write can't be reordered after the push
-	make sure it is valid with regards to fence-atomic operation 
-	std::atomic_thread_fence(std::memory_order_release);
+	//There is no reason to set another memory order
+	//We are sure that the store can't be reordered after the taskpool lock
+	//So even if this store is performed after the task store in taskpool memory
+	//it will be visible due to write release of the lock
+	semaphore.dependentCounter.store( count + 1u, std::memory_order_relaxed );
 
 	return TaskPoolFunction::PushTasks(
 		scheduler.taskPool, count, tasks, hSemaphore.handle);

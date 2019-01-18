@@ -1,6 +1,7 @@
 #include "scheduler/FiberTaskSchedulerExternalFunction.h"
 
 #include "scheduler/FiberTaskSchedulerData.h"
+#include "scheduler/FiberTaskSchedulerInternalFunction.h"
 #include "scheduler/TaskPoolFunction.h"
 #include "scheduler/TaskDecl.h"
 #include "scheduler/SyncPrimitive.h"
@@ -40,18 +41,12 @@ FiberTaskSchedulerExternalFunction::SubmitTasks(
 	}
 
 	Fence*	fences{ scheduler.fences };
-	Semaphore*	semaphores{ scheduler.semaphores };
-	
 	const HSemaphore hSemaphore{ fences[hFence.handle].hSemaphore };
-	Semaphore& semaphore{ semaphores[hSemaphore.handle] };
 
-	semaphore.dependentCounter.fetch_add(count, std::memory_order_relaxed);
-
-	//We want to make sure the write can't be reordered after the push
-	std::atomic_thread_fence(std::memory_order_release);
-
-	return TaskPoolFunction::PushTasks(
-		scheduler.taskPool, count, tasks, hSemaphore.handle);
+	//We decrement the count because it will incremented by one in the next function
+	//This increment is here to handle classic task submition
+	return FiberTaskSchedulerInternalFunction::SubmitTasks( scheduler, 
+		count - 1, tasks, hSemaphore );
 }
 
 
