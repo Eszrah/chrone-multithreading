@@ -8,6 +8,7 @@ struct ThreadFiberData;
 struct FiberPool;
 struct Fiber;
 struct Task;
+struct Semaphore;
 
 struct FiberFunction
 {

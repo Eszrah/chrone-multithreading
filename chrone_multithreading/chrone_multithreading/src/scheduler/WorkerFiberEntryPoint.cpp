@@ -6,7 +6,7 @@
 #include "scheduler/FiberPoolFunction.h"
 #include "scheduler/FiberData.h"
 #include "scheduler/FiberFunction.h"
-#include "scheduler/WorkItemFunction.h"
+#include "scheduler/FiberMainLoop.h"
 
 namespace chrone::multithreading::scheduler
 {
@@ -33,7 +33,7 @@ WorkerFiberEntryPoint(
 
 	if (scheduler->threadsData.threadsKeepRunning)
 	{
-		WorkItemFunction::MainLoop(*fiberData->scheduler);
+		FiberMainLoop::MainLoop(*fiberData->scheduler);
 	}
 
 	FiberEntryPointFunction::_Shutdown();

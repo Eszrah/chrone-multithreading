@@ -44,20 +44,20 @@ FiberTaskSchedulerInternalFunction::SubmitTasks(
 	const Uint32 count, 
 	const TaskDecl* tasks)
 {
-	return SubmitTasks(scheduler, count, tasks, { scheduler.defaultHSyncPrimitive });
+	return SubmitTasks(scheduler, count, tasks, HSemaphore{ scheduler.defaultHSyncPrimitive });
 }
 
 
 bool 
 FiberTaskSchedulerInternalFunction::WaitSemaphore(
 	FiberTaskSchedulerData& scheduler, 
-	HSemaphore& hSemaphore)
+	HSemaphore hSemaphore)
 {
 	ThreadFiberData*	threadFibersData{ scheduler.threadFibersData.data() };
-	FiberPool&	fiberPool{ scheduler.fiberPool };
-	Fiber*	freeFiber{ FiberPoolFunction::PopFreeFiber(fiberPool) };
+	FiberPool&			fiberPool{ scheduler.fiberPool };
+	Fiber*				freeFiber{ FiberPoolFunction::PopFreeFiber(fiberPool) };
 	const FiberData*	fiberData{ FiberFunction::GetFiberData() };
-	Semaphore*	semaphore{ &scheduler.semaphores[hSemaphore.handle] };
+	Semaphore*			semaphore{ &scheduler.semaphores[hSemaphore.handle] };
 
 	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, 
 		threadFibersData[fiberData->threadIndex], freeFiber, 

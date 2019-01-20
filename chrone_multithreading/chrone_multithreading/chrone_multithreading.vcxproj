@@ -121,6 +121,7 @@
   <ItemGroup>
     <ClInclude Include="include\AssertMacro.h" />
     <ClInclude Include="include\scheduler\DummyTaskFunctor.h" />
+    <ClInclude Include="include\scheduler\FiberMainLoop.h" />
     <ClInclude Include="include\scheduler\SyncPrimitive.h" />
     <ClInclude Include="include\scheduler\FiberFunction.h" />
     <ClInclude Include="include\scheduler\FiberPoolFunction.h" />
@@ -132,8 +133,6 @@
     <ClInclude Include="include\scheduler\HFence.h" />
     <ClInclude Include="include\scheduler\HSemaphore.h" />
     <ClInclude Include="include\scheduler\Task.h" />
-    <ClInclude Include="include\scheduler\TaskBuffer.h" />
-    <ClInclude Include="include\scheduler\TaskBufferFunction.h" />
     <ClInclude Include="include\scheduler\TaskPool.h" />
     <ClInclude Include="include\scheduler\TaskPoolFunction.h" />
     <ClInclude Include="include\scheduler\ThreadContextData.h" />
@@ -144,22 +143,20 @@
     <ClInclude Include="include\scheduler\TaskDecl.h" />
     <ClInclude Include="include\scheduler\WindowsFiberHelper.h" />
     <ClInclude Include="include\scheduler\WorkerFiberEntryPoint.h" />
-    <ClInclude Include="include\scheduler\WorkItemFunction.h" />
     <ClInclude Include="include\scheduler\WorkerThreadEntryPoint.h" />
     <ClInclude Include="include\Spinlock.h" />
     <ClInclude Include="include\std_extension\SpinlockStdExt.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scheduler\FIberFunction.cpp" />
+    <ClCompile Include="src\scheduler\FiberMainLoop.cpp" />
     <ClCompile Include="src\scheduler\FiberPoolFunction.cpp" />
     <ClCompile Include="src\scheduler\FiberTaskSchedulerExternalFunction.cpp" />
     <ClCompile Include="src\scheduler\FiberTaskSchedulerFunction.cpp" />
     <ClCompile Include="src\scheduler\FiberTaskSchedulerInternalFunction.cpp" />
-    <ClCompile Include="src\scheduler\TaskBufferFunction.cpp" />
     <ClCompile Include="src\scheduler\TaskPoolFunction.cpp" />
     <ClCompile Include="src\scheduler\WindowsFiberHelper.cpp" />
     <ClCompile Include="src\scheduler\WorkerFiberEntryPoint.cpp" />
-    <ClCompile Include="src\scheduler\WorkItemFunction.cpp" />
     <ClCompile Include="src\scheduler\WorkerThreadEntryPoint.cpp" />
     <ClCompile Include="src\Source.cpp" />
   </ItemGroup>

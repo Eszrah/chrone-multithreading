@@ -60,13 +60,7 @@
     <ClInclude Include="include\scheduler\FiberFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\scheduler\WorkItemFunction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\scheduler\DummyTaskFunctor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\scheduler\TaskBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\scheduler\TaskPool.h">
@@ -79,9 +73,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\scheduler\ThreadContextData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\scheduler\TaskBufferFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\scheduler\FiberTaskSchedulerExternalFunction.h">
@@ -100,6 +91,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\scheduler\SyncPrimitive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scheduler\FiberMainLoop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -125,19 +119,16 @@
     <ClCompile Include="src\scheduler\FIberFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\scheduler\WorkItemFunction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\scheduler\TaskPoolFunction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\scheduler\TaskBufferFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scheduler\FiberTaskSchedulerExternalFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scheduler\FiberTaskSchedulerInternalFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scheduler\FiberMainLoop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

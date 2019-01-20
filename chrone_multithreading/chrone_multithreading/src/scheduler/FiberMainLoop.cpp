@@ -1,4 +1,4 @@
-#include "scheduler/WorkItemFunction.h"
+#include "scheduler/FiberMainLoop.h"
 
 #include <cassert>
 
@@ -14,7 +14,7 @@ namespace chrone::multithreading::scheduler
 {
 
 void 
-WorkItemFunction::MainLoop(
+FiberMainLoop::MainLoop(
 	FiberTaskSchedulerData& scheduler)
 {
 	std::atomic_bool&	threadsKeepRunning{

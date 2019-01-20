@@ -9,7 +9,7 @@
 #include "scheduler/FiberPoolFunction.h"
 #include "scheduler/FiberFunction.h"
 #include "scheduler/WindowsFiberHelper.h"
-#include "scheduler/WorkItemFunction.h"
+#include "scheduler/FiberMainLoop.h"
 
 #include "std_extension/SpinlockStdExt.h"
 
@@ -22,7 +22,7 @@ WorkerThreadFunction::EntryPoint(
 {
 	if (!_Initialize(funcData)) { return; }
 
-	WorkItemFunction::MainLoop(*funcData.scheduler);
+	FiberMainLoop::MainLoop(*funcData.scheduler);
 
 	_Shutdown();
 }

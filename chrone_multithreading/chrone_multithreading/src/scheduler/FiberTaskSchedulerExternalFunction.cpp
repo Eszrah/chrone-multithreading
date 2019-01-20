@@ -12,19 +12,29 @@
 namespace chrone::multithreading::scheduler
 {
 
+struct WaitFenceJobData
+{
+	FiberTaskSchedulerData*	scheduler{ nullptr };
+	Fence*	fence{ nullptr };
+};
+
+
 void 
 WaitFenceJob(
 	void* data)
 {
-	Fence*	fence{ static_cast<Fence*>(data) };
+	WaitFenceJobData*	jobData{ static_cast<WaitFenceJobData*>(data) };
+	FiberTaskSchedulerData& scheduler{ *jobData->scheduler };
+	Fence& fence{ *jobData->fence };
+	const HSemaphore hSemaphore{ fence.hSemaphore };
 
-	Wait for jobs to be finished -> need access to scheduler
+	FiberTaskSchedulerInternalFunction::WaitSemaphore(scheduler, hSemaphore);
 
 	{
-		std::lock_guard<std::mutex> lk{ fence->mutex };
-		fence->fenceSignaled = 1u;
+		std::lock_guard<std::mutex> lk{ fence.mutex };
+		fence.fenceSignaled = 1u;
 	}
-	fence->conditionVariable.notify_all();
+	fence.conditionVariable.notify_all();
 }
 
 
@@ -43,10 +53,9 @@ FiberTaskSchedulerExternalFunction::SubmitTasks(
 	Fence*	fences{ scheduler.fences };
 	const HSemaphore hSemaphore{ fences[hFence.handle].hSemaphore };
 
-	//We decrement the count because it will incremented by one in the next function
-	//This increment is here to handle classic task submition
-	return FiberTaskSchedulerInternalFunction::SubmitTasks( scheduler, 
-		count - 1, tasks, hSemaphore );
+	
+	return FiberTaskSchedulerInternalFunction::SubmitTasks(scheduler, 
+		count, tasks, hSemaphore);
 }
 
 

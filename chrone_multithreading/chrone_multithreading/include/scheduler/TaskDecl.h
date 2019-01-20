@@ -12,7 +12,7 @@ struct TaskDecl
 	inline TaskDecl(TaskDecl&& other) = default;
 	~TaskDecl() = default;
 
-	TaskDecl(TaskDeclFunc functor, void* data):
+	explicit TaskDecl(TaskDeclFunc functor, void* data):
 		functor{ functor },
 		data{ data }
 	{}

@@ -14,7 +14,7 @@ struct FiberTaskSchedulerInternalFunction
 {
 	static bool	SubmitTasks(FiberTaskSchedulerData& scheduler, const Uint32 count, const TaskDecl* tasks, HSemaphore hSemaphore);
 	static bool	SubmitTasks(FiberTaskSchedulerData& scheduler, const Uint32 count, const TaskDecl* tasks);
-	static bool	WaitSemaphore(FiberTaskSchedulerData& scheduler, HSemaphore& hSemaphore);
+	static bool	WaitSemaphore(FiberTaskSchedulerData& scheduler, HSemaphore hSemaphore);
 };
 
 }

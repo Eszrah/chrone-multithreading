@@ -5,7 +5,7 @@ namespace chrone::multithreading::scheduler
 
 struct FiberTaskSchedulerData;
 
-struct WorkItemFunction
+struct FiberMainLoop
 {
 	static void	MainLoop(FiberTaskSchedulerData& scheduler);
 };
