@@ -10,12 +10,12 @@
 #include "scheduler/SyncPrimitive.h"
 
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 bool 
-FiberTaskSchedulerInternalFunction::SubmitTasks(
-	FiberTaskSchedulerData& scheduler, 
+TaskSchedulerInternalFunction::SubmitTasks(
+	TaskSchedulerData& scheduler, 
 	const Uint32 count, 
 	const TaskDecl* tasks, 
 	HSemaphore hSemaphore)
@@ -39,8 +39,8 @@ FiberTaskSchedulerInternalFunction::SubmitTasks(
 
 
 bool 
-FiberTaskSchedulerInternalFunction::SubmitTasks(
-	FiberTaskSchedulerData& scheduler, 
+TaskSchedulerInternalFunction::SubmitTasks(
+	TaskSchedulerData& scheduler, 
 	const Uint32 count, 
 	const TaskDecl* tasks)
 {
@@ -49,8 +49,8 @@ FiberTaskSchedulerInternalFunction::SubmitTasks(
 
 
 bool 
-FiberTaskSchedulerInternalFunction::WaitSemaphore(
-	FiberTaskSchedulerData& scheduler, 
+TaskSchedulerInternalFunction::WaitSemaphore(
+	TaskSchedulerData& scheduler, 
 	HSemaphore hSemaphore)
 {
 	ThreadFiberData*	threadFibersData{ scheduler.threadFibersData.data() };
@@ -58,6 +58,8 @@ FiberTaskSchedulerInternalFunction::WaitSemaphore(
 	Fiber*				freeFiber{ FiberPoolFunction::PopFreeFiber(fiberPool) };
 	const FiberData*	fiberData{ FiberFunction::GetFiberData() };
 	Semaphore*			semaphore{ &scheduler.semaphores[hSemaphore.handle] };
+
+
 
 	FiberFunction::SwitchToFiber(fiberPool, threadFibersData, 
 		threadFibersData[fiberData->threadIndex], freeFiber, 

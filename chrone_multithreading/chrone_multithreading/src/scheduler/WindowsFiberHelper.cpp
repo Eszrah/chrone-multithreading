@@ -3,7 +3,7 @@
 #include <windows.h>
 
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 void* 

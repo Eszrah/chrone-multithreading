@@ -10,18 +10,17 @@
 #include "scheduler/Task.h"
 #include "scheduler/SyncPrimitive.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 void 
 FiberMainLoop::MainLoop(
-	FiberTaskSchedulerData& scheduler)
+	TaskSchedulerData& scheduler)
 {
 	std::atomic_bool&	threadsKeepRunning{
 		scheduler.threadsData.threadsKeepRunning };
 
 	ThreadFiberData*	threadFibersData{ scheduler.threadFibersData.data() };
-
 
 	FiberPool&	fiberPool{ scheduler.fiberPool };
 	TaskPool&	taskPool{ scheduler.taskPool };
@@ -45,8 +44,7 @@ FiberMainLoop::MainLoop(
 
 		if (!TaskPoolFunction::TryPopTask(taskPool, currentTask))
 		{
-			//Wait ???
-			assert(false);
+			std::this_thread::yield();
 			continue;
 		}
 
@@ -60,14 +58,15 @@ FiberMainLoop::MainLoop(
 		//release: We want to make sure there is no memory reordering between the call and the decrement store
 		//acquire: we want to make sure that if the count is 0, then the load will see the dependent fiber
 		const Uint	remainingJobCount{ dependency.dependentCounter.fetch_sub(
-			1u, std::memory_order_acq_rel) }; //
+			1u, std::memory_order_acq_rel) - 1u }; //
 
 		if (remainingJobCount == 0)
 		{
 			//We have synchronized-with the fiber store
 			dependentFiber = dependency.dependentFiber.load(
 				std::memory_order_relaxed);
-			assert( dependentFiber );
+
+			//the dependentFiber could be nullptr if the used semaphore is the default one
 		}
 	}
 

@@ -6,7 +6,7 @@
 #include "std_extension/SpinlockStdExt.h"
 #include "AssertMacro.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 bool
@@ -53,7 +53,7 @@ TaskPoolFunction::PushTasks(
 		LockGuardSpinLock	lock{ pool.taskBuffersLock };
 		const Uint32	tailIndex{ pool.tailIndex };
 
-		CHR_ASSERT(tailIndex != pool.headIndex);
+		assert(((tailIndex + 1u) & tasksMaxCountMinusOne) != pool.headIndex);
 		tasks[tailIndex] = std::move(tmpTask);
 		pool.tailIndex = (tailIndex + 1u) & tasksMaxCountMinusOne;
 	}
@@ -69,8 +69,8 @@ TaskPoolFunction::TryPopTask(
 	Task& task)
 {
 	const Uint32	tasksMaxCountMinusOne{ pool.tasksMaxCount - 1u };
-	Task* const		tasks{ pool.tasks };
 	LockGuardSpinLock	lock{ pool.taskBuffersLock };
+	Task* const		tasks{ pool.tasks };
 
 	const Uint32	headIndex{ pool.headIndex };
 	const Uint32	tailIndex{ pool.tailIndex };

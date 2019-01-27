@@ -13,7 +13,7 @@
 
 #include "std_extension/SpinlockStdExt.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 void 
@@ -33,7 +33,7 @@ WorkerThreadFunction::_Initialize(
 	WorkerThreadFuncData funcData)
 {
 	Uint							threadIndex{ funcData.threadIndex };
-	FiberTaskSchedulerData*			scheduler{ funcData.scheduler };
+	TaskSchedulerData*			scheduler{ funcData.scheduler };
 	ThreadsData&					threadsData{ scheduler->threadsData };
 	std::vector<FiberData>&			fibersData{ scheduler->fibersData };
 	std::vector<ThreadFiberData>&	threadFibersData{ scheduler->threadFibersData };
@@ -74,7 +74,7 @@ WorkerThreadFunction::_Shutdown()
 {
 	const FiberData*	fiberData{ FiberFunction::GetFiberData() };
 
-	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
+	TaskSchedulerData*	scheduler{ fiberData->scheduler };
 	FiberPool&	fiberPool{ scheduler->fiberPool };
 	ThreadsData&	threadsData{ scheduler->threadsData };
 
@@ -82,9 +82,13 @@ WorkerThreadFunction::_Shutdown()
 	ThreadFiberData*	threadFibersData{ scheduler->threadFibersData.data() };
 	ThreadFiberData&	threadFiberData{ threadFibersData[threadIndex] };
 
-	if (threadsData.threadsShutdownState[threadIndex])
 	{
-		return true;
+		LockGuardSpinLock	lock{ threadsData.shutdownStateLock };
+
+		if (threadsData.threadsShutdownState[threadIndex])
+		{
+			return true;
+		}
 	}
 
 	assert(!threadFiberData.previousFiber);
@@ -96,7 +100,11 @@ WorkerThreadFunction::_Shutdown()
 
 	//Getting and Switching to a native fiber
 	Fiber*	nativeFiber{ _GetFreeNativeFiber(fiberPool, scheduler->threadsFibers) };
-	threadsData.threadsShutdownState[threadIndex] = true;
+
+	{
+		LockGuardSpinLock	lock{ threadsData.shutdownStateLock };
+		threadsData.threadsShutdownState[threadIndex] = true;
+	}
 
 	//signaling we have passed the barrier
 	threadsData.threadsCountSignal.fetch_add(1, std::memory_order_seq_cst);

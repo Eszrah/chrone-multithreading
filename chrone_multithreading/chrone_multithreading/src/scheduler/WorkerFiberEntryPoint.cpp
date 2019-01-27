@@ -8,7 +8,9 @@
 #include "scheduler/FiberFunction.h"
 #include "scheduler/FiberMainLoop.h"
 
-namespace chrone::multithreading::scheduler
+#include "std_extension/SpinlockStdExt.h"
+
+namespace chrone::multithreading::fiberScheduler
 {
 
 void __stdcall
@@ -17,10 +19,11 @@ WorkerFiberEntryPoint(
 {
 	FiberData*	fiberData{ static_cast<FiberData*>(data) };
 	const Uint8	threadIndex{ fiberData->threadIndex };
-	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
-	ThreadFiberData&	threadFiberData{
-		scheduler->threadFibersData[threadIndex] };
-
+	TaskSchedulerData*	scheduler{ fiberData->scheduler };
+	FiberPool&	fiberPool{ scheduler->fiberPool };
+	ThreadFiberData*	threadFibersData{ scheduler->threadFibersData.data() };
+	ThreadFiberData&	threadFiberData{ 
+		FiberFunction::_SwitchEnterNewFiber(fiberPool, threadFibersData) };
 	//you may come from a mainLoop switchToFiber or from a shutdown switchToFiber
 
 	//threadFiberData.previousFiber is nullptr if you come from a thread which never switched to another fiber
@@ -46,13 +49,19 @@ FiberEntryPointFunction::_Shutdown()
 	//SHOULD NOT BE EXECUTED TWICE !!!!!
 	const FiberData*	fiberData{ FiberFunction::GetFiberData() };
 	const Uint8	threadIndex{ fiberData->threadIndex };
-	FiberTaskSchedulerData*	scheduler{ fiberData->scheduler };
+	TaskSchedulerData*	scheduler{ fiberData->scheduler };
 	ThreadsData&	threadsData{ scheduler->threadsData };
 	FiberPool&	fiberPool{ scheduler->fiberPool };
 	ThreadFiberData*	threadFibersData{ scheduler->threadFibersData.data() };
 	ThreadFiberData&	threadFiberData{ threadFibersData[threadIndex] };
 	Fiber&	threadFiber{ scheduler->threadsFibers[threadIndex] };
-	const bool	threadsShutdownState{ threadsData.threadsShutdownState[threadIndex] };
+
+	bool	threadsShutdownState{ false };
+
+	{
+		LockGuardSpinLock	lock{ threadsData.shutdownStateLock };
+		threadsShutdownState = threadsData.threadsShutdownState[threadIndex];
+	}
 
 	assert(!threadFiberData.previousFiber);
 

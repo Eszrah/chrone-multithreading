@@ -1,13 +1,13 @@
 #pragma once
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
-struct FiberTaskSchedulerData;
+struct TaskSchedulerData;
 
 struct FiberMainLoop
 {
-	static void	MainLoop(FiberTaskSchedulerData& scheduler);
+	static void	MainLoop(TaskSchedulerData& scheduler);
 };
 
 }

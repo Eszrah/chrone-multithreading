@@ -3,7 +3,7 @@
 #include "NativeType.h"
 #include "TaskDecl.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 struct Task

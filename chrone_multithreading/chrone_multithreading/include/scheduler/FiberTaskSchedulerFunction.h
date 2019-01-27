@@ -10,39 +10,39 @@ namespace std
 	struct atomic;
 }
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
-struct FiberTaskSchedulerData;
+struct TaskSchedulerData;
 struct ThreadsData;
 struct TaskBuffer;
 struct Fence;
 struct Semaphore;
 
 
-struct FiberTaskSchedulerFunction
+struct TaskSchedulerFunction
 {
 
-	static bool	Initialize(FiberTaskSchedulerData& scheduler,
+	static bool	Initialize(TaskSchedulerData& scheduler,
 		const Uint16 threadCount, const Uint16 fiberCount, const Uint32 maxTaskCountPowerOfTwo, const Uint16 fenceMaxCount, const Uint16 semaphroeMaxCount);
 
-	static bool	Shutdown(FiberTaskSchedulerData& scheduler);
+	static bool	Shutdown(TaskSchedulerData& scheduler);
 
-	static HFence	AllocateFence(FiberTaskSchedulerData& scheduler);
-	static void		FreeFence(FiberTaskSchedulerData& scheduler, HFence fence);
+	static HFence	AllocateFence(TaskSchedulerData& scheduler);
+	static void		DeallocateFence(TaskSchedulerData& scheduler, HFence fence);
 
-	static HSemaphore	AllocateSemaphore(FiberTaskSchedulerData& scheduler);
-	static void		FreeSemaphre(FiberTaskSchedulerData& scheduler, HSemaphore semaphore);
+	static HSemaphore	AllocateSemaphore(TaskSchedulerData& scheduler);
+	static void		DeallocateSemaphore(TaskSchedulerData& scheduler, HSemaphore semaphore);
 
-	static HFence	_AllocateFence(FiberTaskSchedulerData& scheduler);
-	static void		_FreeFence(FiberTaskSchedulerData& scheduler, HFence fence);
+	static HFence	_AllocateFence(TaskSchedulerData& scheduler);
+	static void		_DeallocateFence(TaskSchedulerData& scheduler, HFence fence);
 
-	static HSemaphore	_AllocateSemaphore(FiberTaskSchedulerData& scheduler);
-	static void		_FreeSemaphore(FiberTaskSchedulerData& scheduler, HSemaphore semaphore);
+	static HSemaphore	_AllocateSemaphore(TaskSchedulerData& scheduler);
+	static void		_DeallocateSemaphore(TaskSchedulerData& scheduler, HSemaphore semaphore);
 
 	static void	_WaitAnddResetCounter(std::atomic<Uint>& counter, Uint count);
 	static void _JoinThreads(ThreadsData& threadsData);
-	static void _Clear(FiberTaskSchedulerData& scheduler);
+	static void _Clear(TaskSchedulerData& scheduler);
 };
 
 }

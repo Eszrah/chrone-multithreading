@@ -2,7 +2,7 @@
 
 using TaskDeclFunc = void(*)(void*);
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 struct TaskDecl 

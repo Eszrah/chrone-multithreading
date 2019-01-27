@@ -2,16 +2,16 @@
 
 #include "NativeType.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
-struct FiberTaskSchedulerData;
+struct TaskSchedulerData;
 
 struct FiberData
 {
 	FiberData() = default;
 
-	FiberData(const Uint8 threadIndex, Fiber* fiber, FiberTaskSchedulerData* scheduler):
+	FiberData(const Uint8 threadIndex, Fiber* fiber, TaskSchedulerData* scheduler):
 		threadIndex{ threadIndex },
 		fiber{ fiber },
 		scheduler{ scheduler }
@@ -19,7 +19,7 @@ struct FiberData
 
 	Uint8	threadIndex{ 0xFF };
 	Fiber*	fiber{ nullptr };
-	FiberTaskSchedulerData*	scheduler{ nullptr };
+	TaskSchedulerData*	scheduler{ nullptr };
 };
 
 }

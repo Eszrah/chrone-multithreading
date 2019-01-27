@@ -1,6 +1,6 @@
 #pragma once
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 void __stdcall WorkerFiberEntryPoint(void* data);

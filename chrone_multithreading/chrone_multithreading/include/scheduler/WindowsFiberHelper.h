@@ -2,7 +2,7 @@
 
 using FiberEntryPointFunctor = void(__stdcall*)(void*);
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 struct WindowsFiberHelper

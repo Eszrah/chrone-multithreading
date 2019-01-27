@@ -9,7 +9,7 @@
 #include "TaskPool.h"
 #include "HSemaphore.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 struct Fence;
@@ -23,24 +23,26 @@ struct ThreadsData
 	std::atomic<Uint>	threadsCountSignal{ 0u };
 
 	std::vector<std::thread*>	threads{};
+
+	//This lock is here in case of false sharing would harm memory coherency
+	Spinlock	shutdownStateLock{};
 	std::vector<bool>	threadsShutdownState{};
 };
 
-struct FiberTaskSchedulerData
+struct TaskSchedulerData
 {
-	constexpr static Uint	defaultHSyncPrimitive{ 0u };
+	constexpr static Uint32	defaultHSyncPrimitive{ 0u };
+	constexpr static Uint32	invalidHSyncPrimitive{ 0xFFFFFFFF };
 
 	ThreadsData	threadsData{};
 	std::vector<ThreadFiberData>	threadFibersData{};
 
 	Spinlock	fenceLock{};
-	Uint32	fenceMaxCount{};
 	std::vector<Uint32>	freeFencesIndices{};
 	Fence*	fences{};
 
 	Spinlock	semaphoreLock{};
 	Uint32	semaphoreMaxCount{};
-	Uint16	allocatedNativeSemaphore{};
 	std::vector<Uint32>	freeSemaphoresIndices{};
 	Semaphore*	semaphores{};
 	 

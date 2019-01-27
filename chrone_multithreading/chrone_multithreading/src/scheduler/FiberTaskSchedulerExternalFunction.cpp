@@ -9,12 +9,12 @@
 
 #include "AssertMacro.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 struct WaitFenceJobData
 {
-	FiberTaskSchedulerData*	scheduler{ nullptr };
+	TaskSchedulerData*	scheduler{ nullptr };
 	Fence*	fence{ nullptr };
 };
 
@@ -24,11 +24,11 @@ WaitFenceJob(
 	void* data)
 {
 	WaitFenceJobData*	jobData{ static_cast<WaitFenceJobData*>(data) };
-	FiberTaskSchedulerData& scheduler{ *jobData->scheduler };
+	TaskSchedulerData& scheduler{ *jobData->scheduler };
 	Fence& fence{ *jobData->fence };
 	const HSemaphore hSemaphore{ fence.hSemaphore };
 
-	FiberTaskSchedulerInternalFunction::WaitSemaphore(scheduler, hSemaphore);
+	TaskSchedulerInternalFunction::WaitSemaphore(scheduler, hSemaphore);
 
 	{
 		std::lock_guard<std::mutex> lk{ fence.mutex };
@@ -39,8 +39,8 @@ WaitFenceJob(
 
 
 bool
-FiberTaskSchedulerExternalFunction::SubmitTasks(
-	FiberTaskSchedulerData& scheduler,
+TaskSchedulerExternalFunction::SubmitTasks(
+	TaskSchedulerData& scheduler,
 	const Uint32 count, 
 	const TaskDecl* tasks,
 	HFence hFence)
@@ -53,15 +53,17 @@ FiberTaskSchedulerExternalFunction::SubmitTasks(
 	Fence*	fences{ scheduler.fences };
 	const HSemaphore hSemaphore{ fences[hFence.handle].hSemaphore };
 
+	assert(hFence.handle != TaskSchedulerData::defaultHSyncPrimitive &&
+		hFence.handle != TaskSchedulerData::invalidHSyncPrimitive);
 	
-	return FiberTaskSchedulerInternalFunction::SubmitTasks(scheduler, 
+	return TaskSchedulerInternalFunction::SubmitTasks(scheduler, 
 		count, tasks, hSemaphore);
 }
 
 
 bool 
-FiberTaskSchedulerExternalFunction::SubmitTasks(
-	FiberTaskSchedulerData& scheduler, 
+TaskSchedulerExternalFunction::SubmitTasks(
+	TaskSchedulerData& scheduler, 
 	const Uint32 count, 
 	const TaskDecl* tasks)
 {
@@ -70,15 +72,19 @@ FiberTaskSchedulerExternalFunction::SubmitTasks(
 
 
 bool 
-FiberTaskSchedulerExternalFunction::WaitFence(
-	FiberTaskSchedulerData& scheduler,
+TaskSchedulerExternalFunction::WaitFence(
+	TaskSchedulerData& scheduler,
 	HFence& hFence)
 {
 	Fence*	fence{ &scheduler.fences[hFence.handle] };
-	const TaskDecl	waitTaskDecl{ WaitFenceJob, fence };
+	WaitFenceJobData	waitFenceJobData{ &scheduler, fence };
+	const TaskDecl	waitTaskDecl{ WaitFenceJob, &waitFenceJobData };
+
+	assert(hFence.handle != TaskSchedulerData::defaultHSyncPrimitive &&
+		hFence.handle != TaskSchedulerData::invalidHSyncPrimitive);
 
 	TaskPoolFunction::PushTasks(scheduler.taskPool, 1, &waitTaskDecl,
-		{ FiberTaskSchedulerData::defaultHSyncPrimitive });
+		{ TaskSchedulerData::defaultHSyncPrimitive });
 
 	std::unique_lock<std::mutex>	lock{ fence->mutex };
 	fence->conditionVariable.wait(lock, 

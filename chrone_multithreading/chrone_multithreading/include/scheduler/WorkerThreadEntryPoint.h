@@ -4,17 +4,17 @@
 
 #include "NativeType.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
-struct FiberTaskSchedulerData;
+struct TaskSchedulerData;
 struct FiberPool;
 struct Fiber;
 
 struct WorkerThreadFuncData 
 {
 	Uint	threadIndex{};
-	FiberTaskSchedulerData*	scheduler{ nullptr };
+	TaskSchedulerData*	scheduler{ nullptr };
 };
 
 struct WorkerThreadFunction 

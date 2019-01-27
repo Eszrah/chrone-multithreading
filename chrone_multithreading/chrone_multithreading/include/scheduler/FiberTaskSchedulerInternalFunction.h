@@ -3,18 +3,18 @@
 #include "NativeType.h"
 
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
-struct FiberTaskSchedulerData;
+struct TaskSchedulerData;
 struct TaskDecl;
 struct HSemaphore;
 
-struct FiberTaskSchedulerInternalFunction
+struct TaskSchedulerInternalFunction
 {
-	static bool	SubmitTasks(FiberTaskSchedulerData& scheduler, const Uint32 count, const TaskDecl* tasks, HSemaphore hSemaphore);
-	static bool	SubmitTasks(FiberTaskSchedulerData& scheduler, const Uint32 count, const TaskDecl* tasks);
-	static bool	WaitSemaphore(FiberTaskSchedulerData& scheduler, HSemaphore hSemaphore);
+	static bool	SubmitTasks(TaskSchedulerData& scheduler, const Uint32 count, const TaskDecl* tasks, HSemaphore hSemaphore);
+	static bool	SubmitTasks(TaskSchedulerData& scheduler, const Uint32 count, const TaskDecl* tasks);
+	static bool	WaitSemaphore(TaskSchedulerData& scheduler, HSemaphore hSemaphore);
 };
 
 }

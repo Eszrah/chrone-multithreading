@@ -6,7 +6,7 @@
 
 #include "std_extension/SpinlockStdExt.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 void 

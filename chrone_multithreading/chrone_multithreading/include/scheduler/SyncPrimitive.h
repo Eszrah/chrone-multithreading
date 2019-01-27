@@ -7,7 +7,7 @@
 #include "HSemaphore.h"
 
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 struct Fiber;
@@ -36,7 +36,6 @@ struct Fence
 
 	Fence&	operator=(const Fence&) = delete;
 	Fence&	operator=(Fence&&) = default;
-
 
 	std::mutex	mutex{};
 	Uint8	fenceSignaled{ false };

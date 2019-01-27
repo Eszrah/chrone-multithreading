@@ -2,7 +2,7 @@
 
 #include "NativeType.h"
 
-namespace chrone::multithreading::scheduler
+namespace chrone::multithreading::fiberScheduler
 {
 
 struct ThreadContextInfo
